@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Bot } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -41,65 +41,92 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-      <Card className="w-full max-w-md bg-white/5 border-white/10 text-white">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
-            ChatBase
-          </CardTitle>
-          <CardDescription className="text-white/50">
-            Crea tu cuenta gratis
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <main className="min-h-screen bg-[#0a0a0a] text-white flex relative">
+
+      {/* Gradiente de fondo */}
+      <div className="absolute inset-0 bg-gradient-to-b from-violet-900/10 via-transparent to-transparent pointer-events-none" />
+
+      {/* Panel izquierdo */}
+      <div className="hidden lg:flex flex-col justify-center gap-12 w-1/2 bg-violet-950/30 border-r border-white/10 p-16">
+        <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+          ChatBase
+        </span>
+        <div className="flex flex-col gap-8">
+          <div className="w-16 h-16 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+            <Bot className="w-8 h-8 text-violet-400" />
+          </div>
+          <h2 className="text-4xl font-bold leading-tight">
+            Tu negocio con un{" "}
+            <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+              asistente inteligente
+            </span>{" "}
+            disponible 24/7
+          </h2>
+          <p className="text-white/50 text-xl leading-relaxed">
+            Crea tu chatbot personalizado, configúralo con la información de tu negocio y añádelo a tu web en minutos.
+          </p>
+        </div>
+        <p className="text-white/30 text-sm">© 2025 ChatBase. Todos los derechos reservados.</p>
+      </div>
+
+      {/* Panel derecho */}
+      <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 relative">
+        <div className="w-full max-w-md flex flex-col gap-8">
+          <div className="flex flex-col gap-3">
+            <h1 className="text-4xl font-bold">Crear cuenta</h1>
+            <p className="text-white/50 text-lg">Empieza gratis, sin tarjeta de crédito.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <Label className="text-white/70">Nombre</Label>
+              <Label className="text-white/70 text-base">Nombre</Label>
               <Input
                 name="name"
                 type="text"
                 placeholder="Tu nombre"
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 text-base"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-white/70">Email</Label>
+              <Label className="text-white/70 text-base">Email</Label>
               <Input
                 name="email"
                 type="email"
-                placeholder="tu@email.com"
+                placeholder="nombre@gmail.com"
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 text-base"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-white/70">Contraseña</Label>
+              <Label className="text-white/70 text-base">Contraseña</Label>
               <Input
                 name="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Mínimo 8 caracteres"
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 text-base"
               />
             </div>
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <Button
               type="submit"
               disabled={loading}
-              className="bg-violet-600 hover:bg-violet-500 !text-white mt-2"
+              className="bg-violet-600 hover:bg-violet-500 !text-white h-12 text-base mt-2"
             >
-              {loading ? "Creando cuenta..." : "Crear cuenta"}
+              {loading ? "Creando cuenta..." : "Crear cuenta gratis"}
             </Button>
-            <p className="text-center text-white/50 text-sm">
-              ¿Ya tienes cuenta?{" "}
-              <a href="/login" className="text-violet-400 hover:text-violet-300">
-                Inicia sesión
-              </a>
-            </p>
           </form>
-        </CardContent>
-      </Card>
+
+          <p className="text-center text-white/50 text-base">
+            ¿Ya tienes cuenta?{" "}
+            <a href="/login" className="text-violet-400 hover:text-violet-300 font-medium">
+              Inicia sesión
+            </a>
+          </p>
+        </div>
+      </div>
+
     </main>
   )
 }
