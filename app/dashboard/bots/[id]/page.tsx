@@ -1,13 +1,13 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { Bot, ArrowLeft, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ChatPreview from "./chat-preview"
 import CopyButton from "./copy-button"
 import Link from "next/link"
 
-const prisma = new PrismaClient()
+
 
 export default async function BotPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()

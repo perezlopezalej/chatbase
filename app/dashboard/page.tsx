@@ -1,11 +1,11 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-const prisma = new PrismaClient()
+
 
 export default async function DashboardPage() {
   const session = await auth()
