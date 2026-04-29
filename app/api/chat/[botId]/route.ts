@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-
-
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ botId: string }> }
 ) {
   try {
     const { botId } = await params
-    const { message } = await req.json()
+    const { message, history } = await req.json()
 
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
@@ -18,6 +16,14 @@ export async function POST(
     if (!bot) {
       return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
     }
+
+    const messages = [
+      ...history.map((msg: { role: string; content: string }) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      { role: "user", content: message },
+    ]
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -33,7 +39,7 @@ export async function POST(
             role: "system",
             content: bot.instructions || `Eres el asistente virtual de ${bot.name}. ${bot.description || ""}`,
           },
-          { role: "user", content: message },
+          ...messages,
         ],
       }),
     })

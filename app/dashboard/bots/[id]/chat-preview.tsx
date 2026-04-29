@@ -27,13 +27,17 @@ export default function ChatPreview({ botId, botName }: { botId: string, botName
 
     const userMessage = input.trim()
     setInput("")
-    setMessages(prev => [...prev, { role: "user", content: userMessage }])
+    const newMessages: Message[] = [...messages, { role: "user", content: userMessage }]
+    setMessages(newMessages)
     setLoading(true)
 
     const res = await fetch(`/api/chat/${botId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage }),
+      body: JSON.stringify({
+        message: userMessage,
+        history: messages,
+      }),
     })
 
     const data = await res.json()
