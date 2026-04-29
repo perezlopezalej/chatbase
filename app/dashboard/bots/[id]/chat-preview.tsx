@@ -41,6 +41,13 @@ export default function ChatPreview({ botId, botName }: { botId: string, botName
     })
 
     const data = await res.json()
+
+    if (res.status === 429) {
+      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ Demasiados mensajes seguidos. Espera un momento antes de continuar." }])
+      setLoading(false)
+      return
+    }
+
     setMessages(prev => [...prev, { role: "assistant", content: data.reply }])
     setLoading(false)
   }

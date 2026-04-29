@@ -1,11 +1,42 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const windowMs = 60 * 1000 // 1 minuto
+  const maxRequests = 20 // máximo 20 mensajes por minuto
+
+  const current = rateLimitMap.get(ip)
+
+  if (!current || now > current.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs })
+    return true
+  }
+
+  if (current.count >= maxRequests) {
+    return false
+  }
+
+  current.count++
+  return true
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ botId: string }> }
 ) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown"
+
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Demasiadas peticiones. Espera un momento." },
+        { status: 429 }
+      )
+    }
+
     const { botId } = await params
     const { message, history } = await req.json()
 
