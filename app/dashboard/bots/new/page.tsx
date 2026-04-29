@@ -20,13 +20,20 @@ export default function NewBotPage() {
 
     const formData = new FormData(e.currentTarget)
 
+    const instructions = formData.get("instructions") as string
+    if (!instructions.trim()) {
+      setError("Las instrucciones del bot son obligatorias")
+      setLoading(false)
+      return
+    }
+
     const res = await fetch("/api/bots", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: formData.get("name"),
         description: formData.get("description"),
-        instructions: formData.get("instructions"),
+        instructions,
       }),
     })
 
@@ -47,12 +54,10 @@ export default function NewBotPage() {
         <ArrowLeft className="w-4 h-4" />
         Volver al dashboard
       </Link>
-
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Crear nuevo chatbot</h1>
         <p className="text-white/50 text-sm mt-1">Configura tu asistente personalizado</p>
       </div>
-
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <Label className="text-white/70">Nombre del chatbot</Label>
@@ -63,7 +68,6 @@ export default function NewBotPage() {
             className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
           />
         </div>
-
         <div className="flex flex-col gap-2">
           <Label className="text-white/70">Descripción breve</Label>
           <Input
@@ -72,7 +76,6 @@ export default function NewBotPage() {
             className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
           />
         </div>
-
         <div className="flex flex-col gap-2">
           <Label className="text-white/70">Instrucciones del bot</Label>
           <p className="text-white/30 text-xs">Cuéntale a tu bot quién es y qué información tiene que manejar. Cuanto más detallado, mejor.</p>
@@ -83,9 +86,7 @@ export default function NewBotPage() {
             className="bg-white/5 border border-white/20 text-white placeholder:text-white/30 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:border-violet-500/50"
           />
         </div>
-
         {error && <p className="text-red-400 text-sm">{error}</p>}
-
         <Button
           type="submit"
           disabled={loading}

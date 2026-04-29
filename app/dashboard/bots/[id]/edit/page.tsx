@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Trash2 } from "lucide-react"
+import { ArrowLeft, Trash2, Bot } from "lucide-react"
 import Link from "next/link"
 import { use } from "react"
 
@@ -15,12 +15,20 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState("")
-  const [bot, setBot] = useState({ name: "", description: "", instructions: "" })
+  const [fetching, setFetching] = useState(true)
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
+  const [instructions, setInstructions] = useState("")
 
   useEffect(() => {
     fetch(`/api/bots/${id}`)
       .then(res => res.json())
-      .then(data => setBot(data))
+      .then(data => {
+        setName(data.name || "")
+        setDescription(data.description || "")
+        setInstructions(data.instructions || "")
+        setFetching(false)
+      })
   }, [id])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,16 +36,16 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
     setLoading(true)
     setError("")
 
-    const formData = new FormData(e.currentTarget)
+    if (!instructions.trim()) {
+      setError("Las instrucciones del bot son obligatorias")
+      setLoading(false)
+      return
+    }
 
     const res = await fetch(`/api/bots/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        description: formData.get("description"),
-        instructions: formData.get("instructions"),
-      }),
+      body: JSON.stringify({ name, description, instructions }),
     })
 
     if (!res.ok) {
@@ -63,17 +71,30 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
     }
   }
 
+  if (fetching) {
+    return (
+      <div className="px-8 py-8 flex items-center justify-center h-64">
+        <p className="text-white/40">Cargando...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="px-8 py-8 max-w-2xl">
+
       <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al bot
       </Link>
 
-      <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
-        <div>
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+          <Bot className="w-6 h-6 text-violet-400" />
+        </div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold">Editar chatbot</h1>
-          <p className="text-white/50 text-sm mt-1">Modifica la configuración de tu asistente</p>
+          <p className="text-white/50 text-sm mt-0.5">Modifica la configuración de tu asistente</p>
         </div>
         <Button
           onClick={handleDelete}
@@ -82,7 +103,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
           className="border-red-500/30 !text-red-400 bg-transparent hover:bg-red-500/10 gap-2"
         >
           <Trash2 className="w-4 h-4" />
-          {deleting ? "Eliminando..." : "Eliminar bot"}
+          {deleting ? "Eliminando..." : "Eliminar"}
         </Button>
       </div>
 
@@ -90,8 +111,8 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
         <div className="flex flex-col gap-2">
           <Label className="text-white/70">Nombre del chatbot</Label>
           <Input
-            name="name"
-            defaultValue={bot.name}
+            value={name}
+            onChange={e => setName(e.target.value)}
             required
             className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
           />
@@ -100,8 +121,8 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
         <div className="flex flex-col gap-2">
           <Label className="text-white/70">Descripción breve</Label>
           <Input
-            name="description"
-            defaultValue={bot.description}
+            value={description}
+            onChange={e => setDescription(e.target.value)}
             className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
           />
         </div>
@@ -110,8 +131,8 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
           <Label className="text-white/70">Instrucciones del bot</Label>
           <p className="text-white/30 text-xs">Cuéntale a tu bot quién es y qué información tiene que manejar.</p>
           <textarea
-            name="instructions"
-            defaultValue={bot.instructions}
+            value={instructions}
+            onChange={e => setInstructions(e.target.value)}
             rows={8}
             className="bg-white/5 border border-white/20 text-white placeholder:text-white/30 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:border-violet-500/50"
           />
@@ -119,7 +140,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-2">
           <Button
             type="submit"
             disabled={loading}
