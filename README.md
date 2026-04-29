@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ChatBase 🤖
 
-## Getting Started
+> Plataforma SaaS para crear chatbots personalizados con IA y añadirlos a cualquier web en minutos.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-38bdf8?style=flat-square&logo=tailwindcss)
+![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat-square&logo=prisma)
 
+## 🚀 ¿Qué es ChatBase?
+
+ChatBase permite a cualquier negocio crear su propio asistente virtual con IA. El usuario configura el bot con la información de su negocio — horarios, servicios, precios — y obtiene un widget para instalarlo en su web con una sola línea de código.
+
+## ✨ Funcionalidades
+
+- 🔐 **Autenticación completa** — Registro, login y sesiones con NextAuth v5
+- 🤖 **Chatbots con IA** — Powered by Groq (Llama 3.1) con memoria de conversación
+- 📊 **Dashboard** — Gestión completa de chatbots con estadísticas
+- 🎨 **Widget embebible** — Una línea de código para instalar en cualquier web
+- ⚙️ **Configuración avanzada** — Instrucciones personalizadas por bot
+- 🛡️ **Rate limiting** — Protección de la API del chat
+- 🗄️ **Base de datos** — PostgreSQL con Prisma ORM en Supabase
+
+## 🛠️ Stack tecnológico
+
+| Capa | Tecnología |
+|------|-----------|
+| Frontend + Backend | Next.js 16 (App Router) |
+| Estilos | Tailwind CSS + shadcn/ui |
+| Autenticación | NextAuth v5 |
+| Base de datos | PostgreSQL (Supabase) |
+| ORM | Prisma 5 |
+| IA | Groq API (Llama 3.1) |
+| Despliegue | Vercel |
+
+## 📦 Instalación local
+
+### Requisitos
+- Node.js 18+
+- pnpm
+- Cuenta en [Supabase](https://supabase.com)
+- API key de [Groq](https://console.groq.com)
+
+### Pasos
+
+1. Clona el repositorio:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/perezlopezalej/chatbase.git
+cd chatbase
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Instala las dependencias:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Crea el archivo de variables de entorno:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Rellena las variables en `.env`:
+```env
+DATABASE_URL="tu-url-de-supabase"
+DIRECT_URL="tu-url-directa-de-supabase"
+AUTH_SECRET="tu-secret-aleatorio"
+GROQ_API_KEY="tu-api-key-de-groq"
+NEXTAUTH_URL="http://localhost:3000"
+```
 
-## Learn More
+5. Ejecuta las migraciones:
+```bash
+npx prisma migrate dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Arranca el servidor:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Demo
 
-## Deploy on Vercel
+[chatbase-perezlopezalej.vercel.app](https://chatbase-perezlopezalej.vercel.app) *(disponible próximamente)*
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 👨‍💻 Autor
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Alejandro Pérez López**  
+[GitHub](https://github.com/perezlopezalej)
+
+## 📄 Licencia
+
+MIT
