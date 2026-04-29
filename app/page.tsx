@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Bot, Zap, Code, Check, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { auth } from "@/auth"
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth()
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
 
@@ -26,17 +29,27 @@ export default function Home() {
           </a>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/login">
-            <Button variant="ghost" className="!text-white/70 hover:!text-white hover:bg-white/10">
-              Iniciar sesión
-            </Button>
-          </Link>
-          <div className="w-px h-4 bg-white/20" />
-          <Link href="/register">
-            <Button className="bg-violet-600 hover:bg-violet-500 !text-white">
-              Empezar gratis
-            </Button>
-          </Link>
+          {session ? (
+            <Link href="/dashboard">
+              <Button className="bg-violet-600 hover:bg-violet-500 !text-white">
+                Ir al dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" className="!text-white/70 hover:!text-white hover:bg-white/10">
+                  Iniciar sesión
+                </Button>
+              </Link>
+              <div className="w-px h-4 bg-white/20" />
+              <Link href="/register">
+                <Button className="bg-violet-600 hover:bg-violet-500 !text-white">
+                  Empezar gratis
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -69,9 +82,9 @@ export default function Home() {
         </p>
 
         <div className="flex gap-3 relative">
-          <Link href="/register">
+          <Link href={session ? "/dashboard" : "/register"}>
             <Button size="lg" className="bg-violet-600 hover:bg-violet-500 !text-white gap-2">
-              Crear mi chatbot gratis <ArrowRight className="w-4 h-4" />
+              {session ? "Ir al dashboard" : "Crear mi chatbot gratis"} <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
           <Button size="lg" variant="outline" className="border-violet-500/50 !text-violet-300 bg-transparent hover:bg-violet-500/10 hover:border-violet-400">
@@ -212,9 +225,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-violet-900/20 via-transparent to-transparent pointer-events-none" />
         <h2 className="text-4xl font-bold max-w-xl relative">¿Listo para tener tu propio asistente inteligente?</h2>
         <p className="text-white/50 text-lg relative">Empieza gratis hoy. Sin tarjeta de crédito.</p>
-        <Link href="/register">
+        <Link href={session ? "/dashboard" : "/register"}>
           <Button size="lg" className="bg-violet-600 hover:bg-violet-500 !text-white gap-2 relative">
-            Crear mi chatbot gratis <ArrowRight className="w-4 h-4" />
+            {session ? "Ir al dashboard" : "Crear mi chatbot gratis"} <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>
       </section>
@@ -222,7 +235,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 py-6 flex items-center justify-between text-white/30 text-sm">
         <span className="font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">ChatBase</span>
-        <span>© 2025 ChatBase. Todos los derechos reservados.</span>
+        <span>© 2026 ChatBase. Todos los derechos reservados.</span>
       </footer>
 
     </main>
