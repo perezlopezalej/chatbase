@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
-
-const prisma = new PrismaClient()
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ botId: string; sourceId: string }> }
+  { params }: { params: Promise<{ id: string; sourceId: string }> }
 ) {
   try {
     const session = await auth()
