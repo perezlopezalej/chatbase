@@ -5,9 +5,9 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trash2, Globe, FileText, Loader2 } from "lucide-react"
+import { Trash2, Globe, FileText, Loader2, ArrowLeft, BookOpen, Lightbulb, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 interface Source {
   id: string
@@ -53,17 +53,13 @@ export default function KnowledgePage() {
       await fetch(`/api/bots/${botId}/sources`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "url",
-          title: data.title,
-          content: data.content,
-        }),
+        body: JSON.stringify({ type: "url", title: data.title, content: data.content }),
       })
 
       setUrl("")
       fetchSources()
     } catch (error) {
-      alert("Error al procesar la URL")
+      alert("Error al procesar la URL. Prueba con texto libre.")
     } finally {
       setScraping(false)
     }
@@ -98,95 +94,176 @@ export default function KnowledgePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Base de conocimiento</h1>
-        <p className="text-muted-foreground mt-1">
-          Añade contenido para que tu bot responda con información real de tu negocio
-        </p>
+    <div className="px-8 py-8">
+
+      {/* Breadcrumb */}
+      <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Volver al bot
+      </Link>
+
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+          <BookOpen className="w-6 h-6 text-violet-400" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold">Base de conocimiento</h1>
+          <p className="text-white/50 text-sm mt-0.5">Añade contenido para que tu bot responda con información real</p>
+        </div>
       </div>
 
-      <Tabs defaultValue="url">
-        <TabsList>
-          <TabsTrigger value="url">Desde URL</TabsTrigger>
-          <TabsTrigger value="text">Texto libre</TabsTrigger>
-        </TabsList>
+      {/* Layout dos columnas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <TabsContent value="url" className="space-y-3 mt-4">
-          <p className="text-sm text-muted-foreground">
-            Pega la URL de tu web y extraeremos el contenido automáticamente
-          </p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://turestaurante.com"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            <Button onClick={handleScrapeUrl} disabled={scraping || !url}>
-              {scraping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Añadir"}
-            </Button>
-          </div>
-        </TabsContent>
+        {/* Columna izquierda */}
+        <div className="lg:col-span-2 flex flex-col gap-8">
 
-        <TabsContent value="text" className="space-y-3 mt-4">
-          <p className="text-sm text-muted-foreground">
-            Escribe o pega directamente la información de tu negocio
-          </p>
-          <Input
-            placeholder="Título (ej: Horarios, Servicios...)"
-            value={textTitle}
-            onChange={(e) => setTextTitle(e.target.value)}
-          />
-          <Textarea
-            placeholder="Escribe aquí la información de tu negocio..."
-            rows={6}
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-          />
-          <Button onClick={handleAddText} disabled={saving || !textContent}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
-          </Button>
-        </TabsContent>
-      </Tabs>
+          {/* Tabs */}
+          <Tabs defaultValue="url">
+            <TabsList className="bg-white/5 border border-white/10">
+              <TabsTrigger value="url" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-white/50">
+                Desde URL
+              </TabsTrigger>
+              <TabsTrigger value="text" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-white/50">
+                Texto libre
+              </TabsTrigger>
+            </TabsList>
 
-      <div className="space-y-3">
-        <h2 className="font-semibold">Fuentes añadidas ({sources.length})</h2>
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Cargando...</p>
-        ) : sources.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No hay fuentes todavía</p>
-        ) : (
-          sources.map((source) => (
-            <Card key={source.id}>
-              <CardHeader className="py-3 px-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {source.type === "url" ? (
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <CardTitle className="text-sm font-medium">
-                      {source.title || "Sin título"}
-                    </CardTitle>
-                  </div>
+            <TabsContent value="url" className="mt-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+                <div>
+                  <p className="text-sm font-medium mb-1">URL de tu web</p>
+                  <p className="text-white/40 text-xs">Extraeremos el contenido automáticamente</p>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://turestaurante.com"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                  />
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(source.id)}
+                    onClick={handleScrapeUrl}
+                    disabled={scraping || !url}
+                    className="bg-violet-600 hover:bg-violet-500 !text-white shrink-0"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    {scraping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Añadir"}
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent className="py-2 px-4">
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {source.content}
-                </p>
-              </CardContent>
-            </Card>
-          ))
-        )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="text" className="mt-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+                <div>
+                  <p className="text-sm font-medium mb-1">Información del negocio</p>
+                  <p className="text-white/40 text-xs">Escribe o pega directamente horarios, servicios, precios...</p>
+                </div>
+                <Input
+                  placeholder="Título (ej: Horarios, Servicios...)"
+                  value={textTitle}
+                  onChange={(e) => setTextTitle(e.target.value)}
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                />
+                <Textarea
+                  placeholder="Escribe aquí la información de tu negocio..."
+                  rows={6}
+                  value={textContent}
+                  onChange={(e) => setTextContent(e.target.value)}
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none"
+                />
+                <Button
+                  onClick={handleAddText}
+                  disabled={saving || !textContent}
+                  className="bg-violet-600 hover:bg-violet-500 !text-white w-fit"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* Fuentes */}
+          <div className="flex flex-col gap-4">
+            <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">
+              Fuentes añadidas ({sources.length})
+            </h2>
+            {loading ? (
+              <p className="text-sm text-white/40">Cargando...</p>
+            ) : sources.length === 0 ? (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
+                <BookOpen className="w-8 h-8 text-white/20 mx-auto mb-3" />
+                <p className="text-white/40 text-sm">No hay fuentes todavía</p>
+                <p className="text-white/25 text-xs mt-1">Añade una URL o texto libre para empezar</p>
+              </div>
+            ) : (
+              sources.map((source) => (
+                <div key={source.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                      {source.type === "url" ? (
+                        <Globe className="h-4 w-4 text-violet-400" />
+                      ) : (
+                        <FileText className="h-4 w-4 text-violet-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{source.title || "Sin título"}</p>
+                      <p className="text-xs text-white/40 mt-0.5 line-clamp-2">{source.content}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(source.id)}
+                    className="text-white/20 hover:text-red-400 transition-colors shrink-0 mt-1"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Columna derecha — tips */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-violet-400" />
+              <h3 className="font-semibold text-sm">Consejos</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {[
+                "Añade los horarios exactos de tu negocio",
+                "Incluye precios y servicios disponibles",
+                "Añade preguntas frecuentes y sus respuestas",
+                "Cuanto más detallado, mejor responderá el bot",
+                "Puedes añadir varias fuentes a la vez",
+              ].map((tip, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 text-violet-400 shrink-0 mt-0.5" />
+                  <p className="text-white/50 text-xs leading-relaxed">{tip}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-5 flex flex-col gap-3">
+            <h3 className="font-semibold text-sm text-violet-300">¿Qué puedes añadir?</h3>
+            <div className="flex flex-col gap-2">
+              {[
+                { icon: Globe, text: "URL de tu web o redes sociales" },
+                { icon: FileText, text: "Texto con info de tu negocio" },
+              ].map(({ icon: Icon, text }, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Icon className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                  <p className="text-white/40 text-xs">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )
