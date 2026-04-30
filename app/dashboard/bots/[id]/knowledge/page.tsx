@@ -101,7 +101,7 @@ export default function KnowledgePage() {
     fetchSources()
   }
 
-  if (!loading && plan === "free") {
+if (plan === "free") {
     return (
       <div className="px-8 py-8">
         <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
