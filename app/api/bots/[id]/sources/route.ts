@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
-const prisma = new PrismaClient()
-
-// GET - obtener todas las fuentes de un bot
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ botId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
-    const { botId } = await params
+    const { id } = await params
 
     const sources = await prisma.knowledgeSource.findMany({
-      where: { botId },
+      where: { botId: id },
       orderBy: { createdAt: "desc" },
     })
 
@@ -26,16 +23,15 @@ export async function GET(
   }
 }
 
-// POST - añadir una fuente nueva
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ botId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
-    const { botId } = await params
+    const { id } = await params
     const { type, title, content } = await req.json()
 
     if (!type || !content) {
@@ -43,7 +39,7 @@ export async function POST(
     }
 
     const source = await prisma.knowledgeSource.create({
-      data: { botId, type, title, content },
+      data: { botId: id, type, title, content },
     })
 
     return NextResponse.json(source)

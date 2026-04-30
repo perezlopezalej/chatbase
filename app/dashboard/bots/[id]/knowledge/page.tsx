@@ -18,7 +18,7 @@ interface Source {
 }
 
 export default function KnowledgePage() {
-  const { botId } = useParams()
+  const { id: botId } = useParams()
   const [sources, setSources] = useState<Source[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

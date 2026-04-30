@@ -21,12 +21,6 @@ export default function NewBotPage() {
     setLoading(true)
     setError("")
 
-    if (!instructions.trim()) {
-      setError("Las instrucciones del bot son obligatorias")
-      setLoading(false)
-      return
-    }
-
     const res = await fetch("/api/bots", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -111,15 +105,17 @@ export default function NewBotPage() {
             {/* Card instrucciones */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Instrucciones</h2>
+                <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">
+                  Instrucciones <span className="text-white/30 normal-case font-normal">(opcional)</span>
+                </h2>
                 <span className="text-white/30 text-xs">{instructions.length} caracteres</span>
               </div>
-              <p className="text-white/40 text-xs">Cuéntale a tu bot quién es, qué información maneja y cómo debe responder.</p>
+              <p className="text-white/40 text-xs">Opcional — si añades una base de conocimiento, el bot usará esa información automáticamente.</p>
               <textarea
                 value={instructions}
                 onChange={e => setInstructions(e.target.value)}
                 rows={10}
-                placeholder="Ej: Eres el asistente virtual del Restaurante Pepe. Abrimos de lunes a domingo de 13:00 a 16:00 y de 20:00 a 23:30. Estamos en Calle Mayor 12, Madrid..."
+                placeholder="Ej: Eres el asistente virtual del Restaurante Pepe. Responde siempre en español, de forma amable y concisa. Si no sabes algo, indica que contacten por teléfono..."
                 className="bg-white/5 border border-white/20 text-white placeholder:text-white/30 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:border-violet-500/50"
               />
             </div>

@@ -19,7 +19,7 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
 
   if (!bot) notFound()
 
-  const widgetCode = `<script src="https://chatbase.vercel.app/widget.js" data-bot-id="${bot.id}"></script>`
+  const widgetCode = `<script src="https://chatbase-theta.vercel.app/widget.js" data-bot-id="${bot.id}"></script>`
 
   return (
     <div className="px-8 py-8">
