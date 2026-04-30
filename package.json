@@ -2,17 +2,18 @@
   "name": "chatbase",
   "version": "0.1.0",
   "private": true,
-"scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint",
-  "postinstall": "prisma generate"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate"
+  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.12.0",

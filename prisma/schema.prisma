@@ -27,4 +27,15 @@ model Bot {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  sources   KnowledgeSource[]
+}
+
+model KnowledgeSource {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  type      String   // "url" | "text"
+  title     String?
+  content   String
+  createdAt DateTime @default(now())
 }

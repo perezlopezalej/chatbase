@@ -1,13 +1,11 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { Bot, ArrowLeft, Pencil } from "lucide-react"
+import { Bot, ArrowLeft, Pencil, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ChatPreview from "./chat-preview"
 import CopyButton from "./copy-button"
 import Link from "next/link"
-
-
 
 export default async function BotPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -45,6 +43,12 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
                   <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
                     <Pencil className="w-3 h-3" />
                     Editar
+                  </Button>
+                </Link>
+                <Link href={`/dashboard/bots/${bot.id}/knowledge`}>
+                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+                    <BookOpen className="w-3 h-3" />
+                    Conocimiento
                   </Button>
                 </Link>
               </div>
@@ -89,7 +93,6 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
 
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
 
-            {/* Pasos */}
             {[
               { step: "1", title: "Copia el código", desc: "Haz click en el botón para copiar el script de instalación" },
               { step: "2", title: "Pégalo en tu web", desc: "Añádelo justo antes del cierre de la etiqueta </body> en tu HTML" },
@@ -106,7 +109,6 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
               </div>
             ))}
 
-            {/* Código */}
             <div className="flex flex-col gap-2">
               <p className="text-xs text-white/40 font-medium uppercase tracking-wide">Código de instalación</p>
               <div className="bg-black/50 border border-white/10 rounded-lg p-4 font-mono text-xs text-violet-300 break-all">
@@ -115,7 +117,6 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
               <CopyButton code={widgetCode} />
             </div>
 
-            {/* Plataformas */}
             <div className="flex flex-col gap-2">
               <p className="text-xs text-white/40 font-medium uppercase tracking-wide">Compatible con</p>
               <div className="flex gap-2 flex-wrap">
