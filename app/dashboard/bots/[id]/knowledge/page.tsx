@@ -26,10 +26,18 @@ export default function KnowledgePage() {
   const [url, setUrl] = useState("")
   const [textTitle, setTextTitle] = useState("")
   const [textContent, setTextContent] = useState("")
+  const [plan, setPlan] = useState<string>("free")
 
   useEffect(() => {
     fetchSources()
+    fetchPlan()
   }, [])
+
+  async function fetchPlan() {
+    const res = await fetch("/api/user/plan")
+    const data = await res.json()
+    setPlan(data.plan)
+  }
 
   async function fetchSources() {
     const res = await fetch(`/api/bots/${botId}/sources`)
@@ -91,6 +99,42 @@ export default function KnowledgePage() {
   async function handleDelete(sourceId: string) {
     await fetch(`/api/bots/${botId}/sources/${sourceId}`, { method: "DELETE" })
     fetchSources()
+  }
+
+  if (!loading && plan === "free") {
+    return (
+      <div className="px-8 py-8">
+        <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Volver al bot
+        </Link>
+        <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+            <BookOpen className="w-8 h-8 text-violet-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Función Pro</h2>
+            <p className="text-white/50 max-w-md">La base de conocimiento está disponible en el plan Pro. Actualiza para entrenar tu bot con la información real de tu negocio.</p>
+          </div>
+          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-6 max-w-sm w-full">
+            {[
+              "Añade URLs de tu web",
+              "Sube texto e información del negocio",
+              "El bot responde con datos reales",
+              "Múltiples fuentes por bot",
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-violet-400 shrink-0" />
+                <p className="text-white/70 text-sm">{item}</p>
+              </div>
+            ))}
+          </div>
+          <Button className="bg-violet-600 hover:bg-violet-500 !text-white px-8">
+            Actualizar a Pro — próximamente
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
