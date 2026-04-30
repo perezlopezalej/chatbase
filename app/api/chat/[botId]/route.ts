@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 export async function POST(
   req: Request,
@@ -9,7 +7,7 @@ export async function POST(
 ) {
   try {
     const { botId } = await params
-    const { message } = await req.json()
+    const { message, history = [] } = await req.json()
 
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
@@ -34,6 +32,16 @@ ${bot.instructions ? `\nInstrucciones: ${bot.instructions}` : ""}
 ${knowledgeContext}
 Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo, dilo honestamente.`
 
+    // Construir historial de mensajes
+    const conversationMessages = [
+      { role: "system", content: systemPrompt },
+      ...history.map((msg: { role: string; content: string }) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      { role: "user", content: message },
+    ]
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -43,10 +51,7 @@ Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         max_tokens: 500,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
+        messages: conversationMessages,
       }),
     })
 
