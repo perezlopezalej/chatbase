@@ -21,6 +21,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
   const [instructions, setInstructions] = useState("")
   const [widgetColor, setWidgetColor] = useState("#7c3aed")
   const [welcomeMessage, setWelcomeMessage] = useState("")
+  const [captureLeads, setCaptureLeads] = useState(false)
 
   useEffect(() => {
     fetch(`/api/bots/${id}`)
@@ -31,6 +32,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
         setInstructions(data.instructions || "")
         setWidgetColor(data.widgetColor || "#7c3aed")
         setWelcomeMessage(data.welcomeMessage || "")
+        setCaptureLeads(data.captureLeads || false)
         setFetching(false)
       })
   }, [id])
@@ -43,7 +45,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
     const res = await fetch(`/api/bots/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, instructions, widgetColor, welcomeMessage }),
+      body: JSON.stringify({ name, description, instructions, widgetColor, welcomeMessage, captureLeads }),
     })
 
     if (!res.ok) {
@@ -168,6 +170,21 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
                 <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Personalización del widget</h2>
               </div>
 
+              {/* Captura de leads */}
+              <div className="flex items-center justify-between py-2 border-b border-white/10">
+                <div>
+                  <p className="text-sm font-medium">Captura de leads</p>
+                  <p className="text-white/40 text-xs mt-0.5">Pide nombre y email antes de chatear</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCaptureLeads(!captureLeads)}
+                  className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${captureLeads ? "bg-violet-600" : "bg-white/20"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${captureLeads ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+
               <div className="flex flex-col gap-2">
                 <Label className="text-white/70">Mensaje de bienvenida</Label>
                 <Input
@@ -281,6 +298,13 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
                   </p>
                 </div>
               </div>
+              {captureLeads && (
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3 flex flex-col gap-2">
+                  <p className="text-xs text-white/60">👋 Antes de empezar, ¿nos dices tu nombre y email?</p>
+                  <div className="bg-white/10 rounded px-2 py-1 text-xs text-white/30">Nombre...</div>
+                  <div className="bg-white/10 rounded px-2 py-1 text-xs text-white/30">Email...</div>
+                </div>
+              )}
               <div className="bg-white/10 rounded-xl rounded-tl-none px-3 py-2 text-xs max-w-[90%]">
                 {welcomeMessage || `¡Hola! Soy ${name || "tu asistente"}. ¿En qué puedo ayudarte?`}
               </div>

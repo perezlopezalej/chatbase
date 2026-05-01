@@ -26,12 +26,14 @@ model Bot {
   instructions   String?
   widgetColor    String            @default("#7c3aed")
   welcomeMessage String            @default("¡Hola! ¿En qué puedo ayudarte?")
+  captureLeads   Boolean           @default(false)
   userId         String
   user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   sources        KnowledgeSource[]
   conversations  Conversation[]
+  leads          Lead[]
 }
 
 model KnowledgeSource {
@@ -59,4 +61,13 @@ model Message {
   role           String
   content        String
   createdAt      DateTime     @default(now())
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name      String?
+  email     String
+  createdAt DateTime @default(now())
 }
