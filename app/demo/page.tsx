@@ -1,8 +1,28 @@
+"use client"
+
 import Link from "next/link"
 import { Bot, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect } from "react"
 
 export default function DemoPage() {
+
+  useEffect(() => {
+    // Cargar el widget al entrar
+    const script = document.createElement("script")
+    script.src = "https://chatbase-theta.vercel.app/widget.js"
+    script.setAttribute("data-bot-id", "cmomxx07c0001nx6b1zcjn1qw")
+    script.async = true
+    document.body.appendChild(script)
+
+    // Limpiar el widget al salir
+    return () => {
+      script.remove()
+      document.getElementById("cb-widget-btn")?.remove()
+      document.getElementById("cb-widget-box")?.remove()
+    }
+  }, [])
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
 
@@ -92,13 +112,6 @@ export default function DemoPage() {
 
         </div>
       </section>
-
-      {/* Widget del bot de demo */}
-      <script
-        src="https://chatbase-theta.vercel.app/widget.js"
-        data-bot-id="cmomxx07c0001nx6b1zcjn1qw"
-        async
-      />
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 py-6 flex items-center justify-between text-white/30 text-sm">
