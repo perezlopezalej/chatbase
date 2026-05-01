@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-// Rate limiting simple en memoria
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
-  const windowMs = 60 * 1000 // 1 minuto
-  const maxRequests = 20 // máximo 20 mensajes por minuto por IP
+  const windowMs = 60 * 1000
+  const maxRequests = 20
 
   const entry = rateLimitMap.get(ip)
 
@@ -27,7 +26,6 @@ export async function POST(
   { params }: { params: Promise<{ botId: string }> }
 ) {
   try {
-    // Rate limiting
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown"
     if (!checkRateLimit(ip)) {
       return NextResponse.json(
@@ -37,7 +35,7 @@ export async function POST(
     }
 
     const { botId } = await params
-    const { message, history = [] } = await req.json()
+    const { message, history = [], conversationId } = await req.json()
 
     if (!message || typeof message !== "string" || message.length > 1000) {
       return NextResponse.json({ error: "Mensaje inválido" }, { status: 400 })
@@ -52,7 +50,24 @@ export async function POST(
       return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
     }
 
-    // Construir contexto con las fuentes de conocimiento
+    // Crear o recuperar conversación
+    let convId = conversationId
+    if (!convId) {
+      const conv = await prisma.conversation.create({
+        data: { botId },
+      })
+      convId = conv.id
+    }
+
+    // Guardar mensaje del usuario
+    await prisma.message.create({
+      data: {
+        conversationId: convId,
+        role: "user",
+        content: message,
+      },
+    })
+
     let knowledgeContext = ""
     if (bot.sources.length > 0) {
       knowledgeContext = `\n\nINFORMACIÓN DEL NEGOCIO (usa esto para responder):\n`
@@ -66,7 +81,6 @@ ${bot.instructions ? `\nInstrucciones: ${bot.instructions}` : ""}
 ${knowledgeContext}
 Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo, dilo honestamente.`
 
-    // Limitar historial a últimos 10 mensajes para no exceder tokens
     const recentHistory = history.slice(-10)
 
     const conversationMessages = [
@@ -96,7 +110,16 @@ Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo
       data.choices?.[0]?.message?.content ||
       "Lo siento, no pude procesar tu mensaje."
 
-    return NextResponse.json({ reply })
+    // Guardar respuesta del bot
+    await prisma.message.create({
+      data: {
+        conversationId: convId,
+        role: "assistant",
+        content: reply,
+      },
+    })
+
+    return NextResponse.json({ reply, conversationId: convId })
   } catch (error) {
     return NextResponse.json({ error: "Error interno" }, { status: 500 })
   }

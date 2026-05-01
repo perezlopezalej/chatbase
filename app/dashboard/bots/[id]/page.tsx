@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { Bot, ArrowLeft, Pencil, BookOpen } from "lucide-react"
+import { Bot, ArrowLeft, Pencil, BookOpen, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ChatPreview from "./chat-preview"
 import CopyButton from "./copy-button"
@@ -20,6 +20,14 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
   if (!bot) notFound()
 
   const widgetCode = `<script src="https://chatbase-theta.vercel.app/widget.js" data-bot-id="${bot.id}"></script>`
+
+  const conversationCount = await prisma.conversation.count({
+    where: { botId: bot.id },
+  })
+
+  const messageCount = await prisma.message.count({
+    where: { conversation: { botId: bot.id } },
+  })
 
   return (
     <div className="px-8 py-8">
@@ -51,6 +59,12 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
                     Conocimiento
                   </Button>
                 </Link>
+                <Link href={`/dashboard/bots/${bot.id}/conversations`}>
+                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+                    <MessageSquare className="w-3 h-3" />
+                    Conversaciones
+                  </Button>
+                </Link>
               </div>
               <p className="text-white/50 text-sm mt-0.5">{bot.description}</p>
             </div>
@@ -61,8 +75,8 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Conversaciones totales", value: "—" },
-          { label: "Mensajes enviados", value: "—" },
+          { label: "Conversaciones totales", value: conversationCount.toString() },
+          { label: "Mensajes enviados", value: messageCount.toString() },
           { label: "Creado el", value: new Date(bot.createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white/5 border border-white/10 rounded-xl p-4">

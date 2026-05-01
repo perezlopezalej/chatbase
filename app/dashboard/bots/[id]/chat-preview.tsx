@@ -16,6 +16,7 @@ export default function ChatPreview({ botId, botName }: { botId: string, botName
   ])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function ChatPreview({ botId, botName }: { botId: string, botName
       body: JSON.stringify({
         message: userMessage,
         history: messages,
+        conversationId,
       }),
     })
 
@@ -46,6 +48,10 @@ export default function ChatPreview({ botId, botName }: { botId: string, botName
       setMessages(prev => [...prev, { role: "assistant", content: "⚠️ Demasiados mensajes seguidos. Espera un momento antes de continuar." }])
       setLoading(false)
       return
+    }
+
+    if (data.conversationId && !conversationId) {
+      setConversationId(data.conversationId)
     }
 
     setMessages(prev => [...prev, { role: "assistant", content: data.reply }])
