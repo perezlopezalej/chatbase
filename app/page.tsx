@@ -58,11 +58,11 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-violet-900/20 via-transparent to-transparent pointer-events-none" />
 
         <div className="flex items-center gap-6 text-sm text-white/40 relative">
-          <span>⭐ 4.9/5 valoración media</span>
+          <span>⚡ Impulsado por Llama 3.1</span>
           <span className="w-px h-4 bg-white/20" />
-          <span>500+ negocios activos</span>
+          <span>🔒 Sin tarjeta de crédito</span>
           <span className="w-px h-4 bg-white/20" />
-          <span>10.000+ conversaciones al día</span>
+          <span>🚀 Listo en minutos</span>
         </div>
 
         <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 text-sm text-violet-300 relative">
@@ -87,9 +87,11 @@ export default async function Home() {
               {session ? "Ir al dashboard" : "Crear mi chatbot gratis"} <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="border-violet-500/50 !text-violet-300 bg-transparent hover:bg-violet-500/10 hover:border-violet-400">
-            Ver demo
-          </Button>
+          <a href="#como-funciona">
+            <Button size="lg" variant="outline" className="border-violet-500/50 !text-violet-300 bg-transparent hover:bg-violet-500/10 hover:border-violet-400">
+              Ver cómo funciona
+            </Button>
+          </a>
         </div>
 
         <div className="relative w-full max-w-lg mt-8">
@@ -185,7 +187,7 @@ export default async function Home() {
               name: "Pro",
               price: "29€",
               desc: "Para crecer",
-              features: ["Chatbots ilimitados", "Conversaciones ilimitadas", "Análisis y estadísticas", "Soporte prioritario"],
+              features: ["Chatbots ilimitados", "Conversaciones ilimitadas", "Base de conocimiento con IA", "Soporte prioritario"],
               cta: "Empezar con Pro",
               highlight: true,
               href: "/register",
