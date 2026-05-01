@@ -1,8 +1,9 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, Users, Mail, User } from "lucide-react"
+import { ArrowLeft, Users, Mail, User, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default async function LeadsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -16,6 +17,48 @@ export default async function LeadsPage({ params }: { params: Promise<{ id: stri
 
   if (!bot) notFound()
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user?.id as string },
+    select: { plan: true },
+  })
+
+  // Bloqueo para usuarios free
+  if (user?.plan === "free") {
+    return (
+      <div className="px-8 py-8">
+        <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Volver al bot
+        </Link>
+        <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+            <Users className="w-8 h-8 text-violet-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Función Pro</h2>
+            <p className="text-white/50 max-w-md">La captura de leads está disponible en el plan Pro. Actualiza para capturar contactos automáticamente 24/7.</p>
+          </div>
+          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-6 max-w-sm w-full">
+            {[
+              "Captura nombre y email automáticamente",
+              "Lista de contactos en tiempo real",
+              "Convierte visitantes en clientes",
+              "Sin límite de leads",
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-violet-400 shrink-0" />
+                <p className="text-white/70 text-sm">{item}</p>
+              </div>
+            ))}
+          </div>
+          <Button className="bg-violet-600 hover:bg-violet-500 !text-white px-8">
+            Actualizar a Pro — próximamente
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const leads = await prisma.lead.findMany({
     where: { botId: id },
     orderBy: { createdAt: "desc" },
@@ -23,7 +66,6 @@ export default async function LeadsPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="px-8 py-8">
-
       <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al bot

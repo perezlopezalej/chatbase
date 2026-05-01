@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Trash2, Bot, Lightbulb, CheckCircle, Palette } from "lucide-react"
+import { ArrowLeft, Trash2, Bot, Lightbulb, CheckCircle, Palette, Lock } from "lucide-react"
 import Link from "next/link"
 import { use } from "react"
 
@@ -22,6 +22,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
   const [widgetColor, setWidgetColor] = useState("#7c3aed")
   const [welcomeMessage, setWelcomeMessage] = useState("")
   const [captureLeads, setCaptureLeads] = useState(false)
+  const [plan, setPlan] = useState("free")
 
   useEffect(() => {
     fetch(`/api/bots/${id}`)
@@ -35,6 +36,10 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
         setCaptureLeads(data.captureLeads || false)
         setFetching(false)
       })
+
+    fetch("/api/user/plan")
+      .then(res => res.json())
+      .then(data => setPlan(data.plan || "free"))
   }, [id])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -78,6 +83,8 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
       </div>
     )
   }
+
+  const isPro = plan === "pro"
 
   return (
     <div className="px-8 py-8">
@@ -163,74 +170,95 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
               />
             </div>
 
-            {/* Card personalización widget */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
-              <div className="flex items-center gap-2">
-                <Palette className="w-4 h-4 text-violet-400" />
-                <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Personalización del widget</h2>
-              </div>
-
-              {/* Captura de leads */}
-              <div className="flex items-center justify-between py-2 border-b border-white/10">
-                <div>
-                  <p className="text-sm font-medium">Captura de leads</p>
-                  <p className="text-white/40 text-xs mt-0.5">Pide nombre y email antes de chatear</p>
+            {/* Card personalización widget — solo Pro */}
+            {isPro ? (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-violet-400" />
+                  <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Personalización del widget</h2>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setCaptureLeads(!captureLeads)}
-                  className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${captureLeads ? "bg-violet-600" : "bg-white/20"}`}
-                >
-                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${captureLeads ? "translate-x-5" : "translate-x-0.5"}`} />
-                </button>
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <Label className="text-white/70">Mensaje de bienvenida</Label>
-                <Input
-                  value={welcomeMessage}
-                  onChange={e => setWelcomeMessage(e.target.value)}
-                  placeholder="¡Hola! ¿En qué puedo ayudarte?"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
-                />
-              </div>
+                <div className="flex items-center justify-between py-2 border-b border-white/10">
+                  <div>
+                    <p className="text-sm font-medium">Captura de leads</p>
+                    <p className="text-white/40 text-xs mt-0.5">Pide nombre y email antes de chatear</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCaptureLeads(!captureLeads)}
+                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${captureLeads ? "bg-violet-600" : "bg-white/20"}`}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${captureLeads ? "translate-x-5" : "translate-x-0.5"}`} />
+                  </button>
+                </div>
 
-              <div className="flex flex-col gap-2">
-                <Label className="text-white/70">Color del widget</Label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={widgetColor}
-                    onChange={e => setWidgetColor(e.target.value)}
-                    className="w-12 h-12 rounded-lg cursor-pointer border border-white/20 bg-transparent"
-                  />
+                <div className="flex flex-col gap-2">
+                  <Label className="text-white/70">Mensaje de bienvenida</Label>
                   <Input
-                    value={widgetColor}
-                    onChange={e => setWidgetColor(e.target.value)}
-                    placeholder="#7c3aed"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 font-mono"
-                  />
-                  <div
-                    className="w-12 h-12 rounded-full shrink-0 border border-white/20"
-                    style={{ background: widgetColor }}
+                    value={welcomeMessage}
+                    onChange={e => setWelcomeMessage(e.target.value)}
+                    placeholder="¡Hola! ¿En qué puedo ayudarte?"
+                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12"
                   />
                 </div>
-                <div className="flex gap-2 mt-1">
-                  {["#7c3aed", "#2563eb", "#16a34a", "#dc2626", "#d97706", "#0891b2"].map(color => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setWidgetColor(color)}
-                      className="w-7 h-7 rounded-full border-2 transition-all"
-                      style={{
-                        background: color,
-                        borderColor: widgetColor === color ? "white" : "transparent",
-                      }}
+
+                <div className="flex flex-col gap-2">
+                  <Label className="text-white/70">Color del widget</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={widgetColor}
+                      onChange={e => setWidgetColor(e.target.value)}
+                      className="w-12 h-12 rounded-lg cursor-pointer border border-white/20 bg-transparent"
                     />
+                    <Input
+                      value={widgetColor}
+                      onChange={e => setWidgetColor(e.target.value)}
+                      placeholder="#7c3aed"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 font-mono"
+                    />
+                    <div
+                      className="w-12 h-12 rounded-full shrink-0 border border-white/20"
+                      style={{ background: widgetColor }}
+                    />
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    {["#7c3aed", "#2563eb", "#16a34a", "#dc2626", "#d97706", "#0891b2"].map(color => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setWidgetColor(color)}
+                        className="w-7 h-7 rounded-full border-2 transition-all"
+                        style={{
+                          background: color,
+                          borderColor: widgetColor === color ? "white" : "transparent",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-white/30" />
+                  <h2 className="font-semibold text-sm text-white/30 uppercase tracking-wide">Personalización del widget</h2>
+                  <span className="text-xs bg-violet-500/20 text-violet-300 border border-violet-500/30 px-2 py-0.5 rounded-full">Pro</span>
+                </div>
+                <p className="text-white/40 text-sm">Personaliza el color, el mensaje de bienvenida y activa la captura de leads con el plan Pro.</p>
+                <div className="flex flex-col gap-2">
+                  {["Color personalizado del widget", "Mensaje de bienvenida propio", "Captura de leads automática"].map(f => (
+                    <div key={f} className="flex items-center gap-2 text-white/30 text-sm">
+                      <Lock className="w-3 h-3 shrink-0" />
+                      {f}
+                    </div>
                   ))}
                 </div>
+                <Button type="button" className="bg-violet-600 hover:bg-violet-500 !text-white w-fit mt-2">
+                  Actualizar a Pro — próximamente
+                </Button>
               </div>
-            </div>
+            )}
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
@@ -298,7 +326,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
                   </p>
                 </div>
               </div>
-              {captureLeads && (
+              {captureLeads && isPro && (
                 <div className="bg-white/5 border border-white/10 rounded-lg p-3 flex flex-col gap-2">
                   <p className="text-xs text-white/60">👋 Antes de empezar, ¿nos dices tu nombre y email?</p>
                   <div className="bg-white/10 rounded px-2 py-1 text-xs text-white/30">Nombre...</div>
