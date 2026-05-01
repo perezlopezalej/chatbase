@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
-import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight } from "lucide-react"
+import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight, BookOpen, Globe } from "lucide-react"
 import Link from "next/link"
 
 export default async function DashboardPage() {
@@ -24,61 +24,135 @@ export default async function DashboardPage() {
     },
   })
 
+  const isNewUser = bots.length === 0
+
   return (
     <div className="px-8 py-8">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
         <div className="flex flex-col justify-center">
-          <h1 className="text-2xl font-bold">Mis chatbots</h1>
-          <p className="text-white/50 text-sm mt-1">Gestiona y crea tus asistentes inteligentes</p>
-        </div>
-        <Link href="/dashboard/bots/new" className="mr-1">
-          <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2">
-            <Plus className="w-4 h-4" />
-            Nuevo chatbot
-          </Button>
-        </Link>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {[
-          { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
-          { label: "Conversaciones hoy", value: conversationsToday, icon: MessageSquare, highlight: false },
-          { label: "Último creado", value: bots[0] ? new Date(bots[0].createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—", icon: Calendar, highlight: false },
-        ].map(({ label, value, icon: Icon, highlight }) => (
-          <div key={label} className={`rounded-xl p-5 flex items-center gap-4 border ${highlight ? "bg-violet-500/10 border-violet-500/40" : "bg-white/5 border-white/20"}`}>
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${highlight ? "bg-violet-500/20 border-violet-500/40" : "bg-violet-500/10 border-violet-500/20"}`}>
-              <Icon className="w-5 h-5 text-violet-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{value}</p>
-              <p className="text-white/50 text-xs mt-0.5">{label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Bots grid o empty state */}
-      {bots.length === 0 ? (
-        <div className="border border-white/10 border-dashed rounded-xl p-16 flex flex-col items-center justify-center text-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-            <Bot className="w-7 h-7 text-violet-400" />
-          </div>
-          <h3 className="font-semibold text-lg">Todavía no tienes chatbots</h3>
-          <p className="text-white/50 text-sm max-w-sm">
-            Crea tu primer asistente personalizado y añádelo a tu web en minutos.
+          <h1 className="text-2xl font-bold">
+            {isNewUser ? `¡Bienvenido a ChatBase! 👋` : "Mis chatbots"}
+          </h1>
+          <p className="text-white/50 text-sm mt-1">
+            {isNewUser ? "Vamos a crear tu primer chatbot en 3 pasos" : "Gestiona y crea tus asistentes inteligentes"}
           </p>
-          <Link href="/dashboard/bots/new">
-            <Button className="bg-violet-600 hover:bg-violet-500 !text-white mt-2 gap-2">
+        </div>
+        {!isNewUser && (
+          <Link href="/dashboard/bots/new" className="mr-1">
+            <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2">
               <Plus className="w-4 h-4" />
-              Crear mi primer chatbot
+              Nuevo chatbot
             </Button>
           </Link>
+        )}
+      </div>
+
+      {isNewUser ? (
+        /* ONBOARDING */
+        <div className="flex flex-col gap-8 max-w-2xl mx-auto">
+
+          {/* Pasos */}
+          <div className="flex flex-col gap-4">
+            {[
+              {
+                step: "1",
+                title: "Crea tu chatbot",
+                desc: "Dale un nombre, descripción e instrucciones. Tu bot estará listo en segundos.",
+                icon: Bot,
+                done: false,
+                cta: "Crear chatbot",
+                href: "/dashboard/bots/new",
+                active: true,
+              },
+              {
+                step: "2",
+                title: "Añade base de conocimiento",
+                desc: "Sube la información de tu negocio — horarios, servicios, precios. El bot la usará para responder.",
+                icon: BookOpen,
+                done: false,
+                cta: null,
+                href: null,
+                active: false,
+              },
+              {
+                step: "3",
+                title: "Instala el widget en tu web",
+                desc: "Copia una línea de código y pégala en tu web. Compatible con cualquier plataforma.",
+                icon: Globe,
+                done: false,
+                cta: null,
+                href: null,
+                active: false,
+              },
+            ].map(({ step, title, desc, icon: Icon, active, cta, href }) => (
+              <div key={step} className={`flex gap-4 p-5 rounded-xl border transition-all ${active ? "bg-violet-500/10 border-violet-500/30" : "bg-white/5 border-white/10 opacity-50"}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold border ${active ? "bg-violet-600 border-violet-500 text-white" : "bg-white/10 border-white/20 text-white/50"}`}>
+                  {step}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-sm">{title}</p>
+                      <p className="text-white/50 text-xs mt-1 leading-relaxed">{desc}</p>
+                    </div>
+                    {cta && href && (
+                      <Link href={href} className="shrink-0">
+                        <Button size="sm" className="bg-violet-600 hover:bg-violet-500 !text-white gap-1.5">
+                          {cta} <ArrowRight className="w-3 h-3" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Demo info */}
+          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-6 flex flex-col gap-3">
+            <p className="text-sm font-semibold text-violet-300">¿Para qué sirve ChatBase?</p>
+            <p className="text-white/50 text-sm leading-relaxed">
+              ChatBase te permite crear un asistente virtual con IA para tu negocio. Tus clientes pueden preguntar sobre horarios, servicios, precios y más — 24/7, sin que tengas que estar pendiente.
+            </p>
+            <div className="grid grid-cols-3 gap-3 mt-2">
+              {[
+                { icon: MessageSquare, text: "Responde preguntas automáticamente" },
+                { icon: Zap, text: "Listo en minutos, sin código" },
+                { icon: Globe, text: "Funciona en cualquier web" },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex flex-col items-center gap-2 text-center p-3 bg-white/5 rounded-lg">
+                  <Icon className="w-5 h-5 text-violet-400" />
+                  <p className="text-white/50 text-xs leading-relaxed">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       ) : (
         <>
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[
+              { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
+              { label: "Conversaciones hoy", value: conversationsToday, icon: MessageSquare, highlight: false },
+              { label: "Último creado", value: bots[0] ? new Date(bots[0].createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—", icon: Calendar, highlight: false },
+            ].map(({ label, value, icon: Icon, highlight }) => (
+              <div key={label} className={`rounded-xl p-5 flex items-center gap-4 border ${highlight ? "bg-violet-500/10 border-violet-500/40" : "bg-white/5 border-white/20"}`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${highlight ? "bg-violet-500/20 border-violet-500/40" : "bg-violet-500/10 border-violet-500/20"}`}>
+                  <Icon className="w-5 h-5 text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{value}</p>
+                  <p className="text-white/50 text-xs mt-0.5">{label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bots grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {bots.map((bot) => (
               <Link href={`/dashboard/bots/${bot.id}`} key={bot.id}>
