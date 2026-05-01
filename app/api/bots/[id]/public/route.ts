@@ -15,13 +15,14 @@ export async function GET(
         description: true,
         widgetColor: true,
         welcomeMessage: true,
+        captureLeads: true,
       },
     })
 
     if (!bot) return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
 
     return NextResponse.json(bot)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Error interno" }, { status: 500 })
   }
 }

@@ -140,6 +140,8 @@
   const history = [];
   let botName = "Asistente";
   let welcomeMessage = null;
+  let captureLeads = false;
+  let leadCaptured = false;
   let initialized = false;
   let limitReached = false;
 
@@ -158,6 +160,9 @@
       }
       if (data.welcomeMessage) {
         welcomeMessage = data.welcomeMessage;
+      }
+      if (data.captureLeads) {
+        captureLeads = true;
       }
     }).catch(() => {});
 
@@ -182,6 +187,41 @@
   function hideTyping() {
     const t = document.getElementById("cb-typing");
     if (t) t.remove();
+  }
+
+  function showLeadForm() {
+    const form = document.createElement("div");
+    form.id = "cb-lead-form";
+    form.style.cssText = "display:flex;flex-direction:column;gap:10px;padding:16px;background:rgba(255,255,255,0.05);border-radius:12px;margin:8px;border:1px solid rgba(255,255,255,0.1);";
+    form.innerHTML = `
+      <p style="font-size:13px;color:#fff;font-weight:600;">👋 Antes de empezar...</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);">Déjanos tu contacto y te ayudamos mejor.</p>
+      <input id="cb-lead-name" placeholder="Tu nombre" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;" />
+      <input id="cb-lead-email" placeholder="Tu email *" type="email" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;" />
+      <button id="cb-lead-submit" style="background:#7c3aed;border:none;border-radius:8px;padding:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Empezar chat →</button>
+    `;
+    messagesEl.appendChild(form);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    inputEl.disabled = true;
+
+    document.getElementById("cb-lead-submit").addEventListener("click", async () => {
+      const name = document.getElementById("cb-lead-name").value.trim();
+      const email = document.getElementById("cb-lead-email").value.trim();
+      if (!email) return;
+
+      try {
+        await fetch(`${BASE_URL}/api/bots/${botId}/leads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
+      } catch {}
+
+      leadCaptured = true;
+      form.remove();
+      inputEl.disabled = false;
+      addMessage(welcomeMessage || `¡Hola! Soy ${botName}. ¿En qué puedo ayudarte?`, "bot");
+    });
   }
 
   async function sendMessage() {
@@ -234,7 +274,11 @@
     box.classList.toggle("open");
     if (box.classList.contains("open") && !initialized) {
       initialized = true;
-      addMessage(welcomeMessage || `¡Hola! Soy ${botName}. ¿En qué puedo ayudarte?`, "bot");
+      if (captureLeads && !leadCaptured) {
+        showLeadForm();
+      } else {
+        addMessage(welcomeMessage || `¡Hola! Soy ${botName}. ¿En qué puedo ayudarte?`, "bot");
+      }
     }
   });
 
