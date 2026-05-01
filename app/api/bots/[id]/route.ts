@@ -2,8 +2,6 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
-
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -35,11 +33,11 @@ export async function PATCH(
     if (!session?.user?.id) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
     const { id } = await params
-    const { name, description, instructions } = await req.json()
+    const { name, description, instructions, widgetColor, welcomeMessage } = await req.json()
 
     const bot = await prisma.bot.updateMany({
       where: { id, userId: session.user.id },
-      data: { name, description, instructions },
+      data: { name, description, instructions, widgetColor, welcomeMessage },
     })
 
     return NextResponse.json(bot)

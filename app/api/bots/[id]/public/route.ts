@@ -7,9 +7,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+
     const bot = await prisma.bot.findUnique({
       where: { id },
-      select: { name: true, description: true },
+      select: {
+        name: true,
+        description: true,
+        widgetColor: true,
+        welcomeMessage: true,
+      },
     })
 
     if (!bot) return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })

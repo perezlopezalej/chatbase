@@ -239,6 +239,7 @@ export default async function Home() {
   <span className="font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">ChatBase</span>
   <div className="flex items-center gap-6">
     <Link href="/privacidad" className="hover:text-white/60 transition-colors">Política de privacidad</Link>
+    <Link href="/terminos" className="hover:text-white/60 transition-colors">Términos y condiciones</Link>
     <span>© 2026 ChatBase. Todos los derechos reservados.</span>
   </div>
 </footer>

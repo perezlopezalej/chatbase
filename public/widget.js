@@ -4,11 +4,9 @@
 
   const BASE_URL = "https://chatbase-theta.vercel.app";
 
-  // Recuperar conversationId de la sesión si existe
   const sessionKey = `cb_conv_${botId}`;
   let conversationId = sessionStorage.getItem(sessionKey) || null;
 
-  // Estilos
   const style = document.createElement("style");
   style.textContent = `
     #cb-widget-btn {
@@ -107,7 +105,6 @@
   `;
   document.head.appendChild(style);
 
-  // HTML
   const box = document.createElement("div");
   box.id = "cb-widget-box";
   box.innerHTML = `
@@ -142,16 +139,25 @@
 
   const history = [];
   let botName = "Asistente";
+  let welcomeMessage = null;
   let initialized = false;
   let limitReached = false;
 
-  // Cargar nombre del bot
+  // Cargar configuración del bot
   fetch(`${BASE_URL}/api/bots/${botId}/public`)
     .then(r => r.json())
     .then(data => {
       if (data.name) {
         botName = data.name;
         nameEl.textContent = botName;
+      }
+      if (data.widgetColor) {
+        const color = data.widgetColor;
+        btn.style.background = color;
+        document.getElementById("cb-widget-send").style.background = color;
+      }
+      if (data.welcomeMessage) {
+        welcomeMessage = data.welcomeMessage;
       }
     }).catch(() => {});
 
@@ -228,7 +234,7 @@
     box.classList.toggle("open");
     if (box.classList.contains("open") && !initialized) {
       initialized = true;
-      addMessage(`¡Hola! Soy ${botName}. ¿En qué puedo ayudarte?`, "bot");
+      addMessage(welcomeMessage || `¡Hola! Soy ${botName}. ¿En qué puedo ayudarte?`, "bot");
     }
   });
 

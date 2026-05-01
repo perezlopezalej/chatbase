@@ -20,23 +20,25 @@ model User {
 }
 
 model Bot {
-  id            String            @id @default(cuid())
-  name          String
-  description   String?
-  instructions  String?
-  userId        String
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  sources       KnowledgeSource[]
-  conversations Conversation[]
+  id             String            @id @default(cuid())
+  name           String
+  description    String?
+  instructions   String?
+  widgetColor    String            @default("#7c3aed")
+  welcomeMessage String            @default("¡Hola! ¿En qué puedo ayudarte?")
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  sources        KnowledgeSource[]
+  conversations  Conversation[]
 }
 
 model KnowledgeSource {
   id        String   @id @default(cuid())
   botId     String
   bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
-  type      String   // "url" | "text"
+  type      String
   title     String?
   content   String
   createdAt DateTime @default(now())
@@ -54,7 +56,7 @@ model Message {
   id             String       @id @default(cuid())
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  role           String       // "user" | "assistant"
+  role           String
   content        String
   createdAt      DateTime     @default(now())
 }
