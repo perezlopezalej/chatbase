@@ -7,16 +7,12 @@ function checkRateLimit(ip: string): boolean {
   const now = Date.now()
   const windowMs = 60 * 1000
   const maxRequests = 20
-
   const entry = rateLimitMap.get(ip)
-
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs })
     return true
   }
-
   if (entry.count >= maxRequests) return false
-
   entry.count++
   return true
 }
@@ -48,6 +44,32 @@ export async function POST(
 
     if (!bot) {
       return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
+    }
+
+    // Limitar conversaciones mensuales en plan free
+    const botUser = await prisma.user.findUnique({
+      where: { id: bot.userId },
+      select: { plan: true },
+    })
+
+    if (botUser?.plan === "free") {
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+
+      const conversationsThisMonth = await prisma.conversation.count({
+        where: {
+          botId: bot.id,
+          createdAt: { gte: startOfMonth },
+        },
+      })
+
+      if (conversationsThisMonth >= 100) {
+        return NextResponse.json(
+          { error: "Este chatbot ha alcanzado el límite de 100 conversaciones mensuales del plan gratuito." },
+          { status: 403 }
+        )
+      }
     }
 
     // Crear o recuperar conversación
