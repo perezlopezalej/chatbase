@@ -235,10 +235,13 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 px-6 py-6 flex items-center justify-between text-white/30 text-sm">
-        <span className="font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">ChatBase</span>
-        <span>© 2026 ChatBase. Todos los derechos reservados.</span>
-      </footer>
+<footer className="border-t border-white/10 px-6 py-6 flex items-center justify-between text-white/30 text-sm">
+  <span className="font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">ChatBase</span>
+  <div className="flex items-center gap-6">
+    <Link href="/privacidad" className="hover:text-white/60 transition-colors">Política de privacidad</Link>
+    <span>© 2026 ChatBase. Todos los derechos reservados.</span>
+  </div>
+</footer>
 
     </main>
   )
