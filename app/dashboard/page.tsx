@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-
-
 export default async function DashboardPage() {
   const session = await auth()
   if (!session) redirect("/login")
@@ -14,6 +12,16 @@ export default async function DashboardPage() {
   const bots = await prisma.bot.findMany({
     where: { userId: session.user?.id as string },
     orderBy: { createdAt: "desc" },
+  })
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const conversationsToday = await prisma.conversation.count({
+    where: {
+      bot: { userId: session.user?.id as string },
+      createdAt: { gte: today },
+    },
   })
 
   return (
@@ -37,7 +45,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[
           { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
-          { label: "Conversaciones hoy", value: "—", icon: MessageSquare, highlight: false },
+          { label: "Conversaciones hoy", value: conversationsToday, icon: MessageSquare, highlight: false },
           { label: "Último creado", value: bots[0] ? new Date(bots[0].createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—", icon: Calendar, highlight: false },
         ].map(({ label, value, icon: Icon, highlight }) => (
           <div key={label} className={`rounded-xl p-5 flex items-center gap-4 border ${highlight ? "bg-violet-500/10 border-violet-500/40" : "bg-white/5 border-white/20"}`}>
