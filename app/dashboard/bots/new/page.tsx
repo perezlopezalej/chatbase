@@ -120,7 +120,16 @@ export default function NewBotPage() {
               />
             </div>
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex flex-col gap-2">
+                <p className="text-red-400 text-sm font-medium">{error}</p>
+                {error.includes("límite") && (
+                  <a href="#" className="text-violet-400 text-xs hover:text-violet-300 transition-colors">
+                    Actualizar a Pro →
+                  </a>
+                )}
+              </div>
+            )}
 
             <Button
               type="submit"
