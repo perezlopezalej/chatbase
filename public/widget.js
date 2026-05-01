@@ -4,6 +4,10 @@
 
   const BASE_URL = "https://chatbase-theta.vercel.app";
 
+  // Recuperar conversationId de la sesión si existe
+  const sessionKey = `cb_conv_${botId}`;
+  let conversationId = sessionStorage.getItem(sessionKey) || null;
+
   // Estilos
   const style = document.createElement("style");
   style.textContent = `
@@ -73,6 +77,7 @@
     }
     .cb-msg.bot { background: rgba(255,255,255,0.08); border-radius: 14px 14px 14px 2px; align-self: flex-start; }
     .cb-msg.user { background: #7c3aed; border-radius: 14px 14px 2px 14px; align-self: flex-end; }
+    .cb-msg.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 14px 14px 14px 2px; align-self: flex-start; color: #fca5a5; }
     .cb-typing { display: flex; gap: 4px; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 14px 14px 14px 2px; align-self: flex-start; }
     .cb-typing span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); animation: cb-bounce 1.2s infinite; }
     .cb-typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -138,9 +143,10 @@
   const history = [];
   let botName = "Asistente";
   let initialized = false;
+  let limitReached = false;
 
   // Cargar nombre del bot
-  fetch(`${BASE_URL}/api/bots/${botId}`)
+  fetch(`${BASE_URL}/api/bots/${botId}/public`)
     .then(r => r.json())
     .then(data => {
       if (data.name) {
@@ -149,9 +155,9 @@
       }
     }).catch(() => {});
 
-  function addMessage(content, role) {
+  function addMessage(content, role, isError = false) {
     const div = document.createElement("div");
-    div.className = `cb-msg ${role}`;
+    div.className = isError ? "cb-msg error" : `cb-msg ${role}`;
     div.textContent = content;
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -173,6 +179,7 @@
   }
 
   async function sendMessage() {
+    if (limitReached) return;
     const text = inputEl.value.trim();
     if (!text) return;
     inputEl.value = "";
@@ -185,16 +192,35 @@
       const res = await fetch(`${BASE_URL}/api/chat/${botId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history }),
+        body: JSON.stringify({ message: text, history, conversationId }),
       });
+
       const data = await res.json();
       hideTyping();
-      const reply = data.reply || "Lo siento, no pude responder.";
+
+      if (res.status === 403) {
+        limitReached = true;
+        addMessage(data.error || "Este chatbot ha alcanzado su límite mensual de conversaciones.", "bot", true);
+        inputEl.disabled = true;
+        return;
+      }
+
+      if (res.status === 429) {
+        addMessage("Demasiados mensajes seguidos. Espera un momento.", "bot", true);
+        return;
+      }
+
+      if (data.conversationId && !conversationId) {
+        conversationId = data.conversationId;
+        sessionStorage.setItem(sessionKey, conversationId);
+      }
+
+      const reply = data.reply || data.error || "Lo siento, no pude responder.";
       addMessage(reply, "bot");
       history.push({ role: "assistant", content: reply });
     } catch {
       hideTyping();
-      addMessage("Error de conexión. Inténtalo de nuevo.", "bot");
+      addMessage("Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.", "bot", true);
     }
   }
 
