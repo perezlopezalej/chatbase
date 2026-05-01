@@ -1,8 +1,9 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, MessageSquare, User, Bot } from "lucide-react"
+import { ArrowLeft, MessageSquare, User, Bot, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default async function ConversationsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -16,8 +17,22 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
 
   if (!bot) notFound()
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user?.id as string },
+    select: { plan: true },
+  })
+
+  const isPro = user?.plan === "pro"
+
+  // Limitar a 7 días para free
+  const dateFilter = isPro ? {} : {
+    createdAt: {
+      gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    },
+  }
+
   const conversations = await prisma.conversation.findMany({
-    where: { botId: id },
+    where: { botId: id, ...dateFilter },
     include: {
       messages: {
         orderBy: { createdAt: "asc" },
@@ -36,15 +51,39 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
-        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <MessageSquare className="w-6 h-6 text-violet-400" />
+      <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+            <MessageSquare className="w-6 h-6 text-violet-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Historial de conversaciones</h1>
+            <p className="text-white/50 text-sm mt-0.5">
+              {bot.name} — {conversations.length} conversaciones
+              {!isPro && <span className="ml-2 text-white/30">(últimos 7 días)</span>}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Historial de conversaciones</h1>
-          <p className="text-white/50 text-sm mt-0.5">{bot.name} — {conversations.length} conversaciones</p>
-        </div>
+        {!isPro && (
+          <div className="flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-lg px-3 py-2">
+            <Lock className="w-3.5 h-3.5 text-violet-400" />
+            <span className="text-xs text-violet-300">Historial completo en Pro</span>
+          </div>
+        )}
       </div>
+
+      {/* Banner upgrade para free */}
+      {!isPro && (
+        <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 flex items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <Lock className="w-4 h-4 text-violet-400 shrink-0" />
+            <p className="text-sm text-white/60">Estás viendo solo los últimos 7 días. Actualiza a Pro para acceder al historial completo.</p>
+          </div>
+          <Button size="sm" className="bg-violet-600 hover:bg-violet-500 !text-white shrink-0">
+            Ver Pro
+          </Button>
+        </div>
+      )}
 
       {/* Lista */}
       {conversations.length === 0 ? (
