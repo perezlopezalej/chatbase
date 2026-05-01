@@ -87,11 +87,11 @@ export default async function Home() {
               {session ? "Ir al dashboard" : "Crear mi chatbot gratis"} <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-          <a href="#como-funciona">
-            <Button size="lg" variant="outline" className="border-violet-500/50 !text-violet-300 bg-transparent hover:bg-violet-500/10 hover:border-violet-400">
-              Ver cómo funciona
-            </Button>
-          </a>
+<Link href="/demo">
+  <Button size="lg" variant="outline" className="border-violet-500/50 !text-violet-300 bg-transparent hover:bg-violet-500/10 hover:border-violet-400">
+    Ver demo en vivo
+  </Button>
+</Link>
         </div>
 
         <div className="relative w-full max-w-lg mt-8">
