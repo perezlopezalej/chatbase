@@ -114,4 +114,19 @@ export default function RegisterPage() {
           <h2 className="text-4xl font-bold leading-tight">
             Tu negocio con un{" "}
             <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">asistente inteligente</span>{" "}
-            disponib
+            disponible 24/7
+          </h2>
+          <p className="text-white/50 text-xl leading-relaxed">
+            Crea tu chatbot personalizado, configúralo con la información de tu negocio y añádelo a tu web en minutos.
+          </p>
+        </div>
+        <p className="text-white/30 text-sm">© 2026 ChatBase. Todos los derechos reservados.</p>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 relative">
+        <Suspense fallback={<div className="text-white/40">Cargando...</div>}>
+          <RegisterForm />
+        </Suspense>
+      </div>
+    </main>
+  )
+}
