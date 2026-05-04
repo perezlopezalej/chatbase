@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
+import { sendProActivationEmail } from "@/lib/emails"
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -27,6 +28,15 @@ export async function POST(req: NextRequest) {
         where: { id: userId },
         data: { plan: "pro" },
       })
+
+      // Enviar email de confirmación Pro (no bloqueante)
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      })
+      if (user?.email) {
+        sendProActivationEmail(user.email, user.name || "Usuario")
+      }
     }
   }
 

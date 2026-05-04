@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { sendWelcomeEmail } from "@/lib/emails"
 
-// Rate limiting para evitar spam de registros
 const registerAttempts = new Map<string, { count: number; resetAt: number }>()
 
 function checkRegisterLimit(ip: string): boolean {
   const now = Date.now()
-  const windowMs = 15 * 60 * 1000 // 15 minutos
+  const windowMs = 15 * 60 * 1000
   const maxAttempts = 5
   const entry = registerAttempts.get(ip)
   if (!entry || now > entry.resetAt) {
@@ -38,19 +38,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email y contraseña son obligatorios" }, { status: 400 })
     }
 
-    // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json({ error: "El email no es válido" }, { status: 400 })
     }
 
-    // Validar longitud mínima de contraseña
     if (password.length < 8) {
       return NextResponse.json({ error: "La contraseña debe tener al menos 8 caracteres" }, { status: 400 })
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } })
-
     if (existingUser) {
       return NextResponse.json({ error: "El email ya está registrado" }, { status: 400 })
     }
@@ -60,6 +57,9 @@ export async function POST(req: Request) {
     await prisma.user.create({
       data: { name, email, password: hashedPassword },
     })
+
+    // Enviar email de bienvenida (no bloqueante)
+    sendWelcomeEmail(email, name || "Usuario")
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch {

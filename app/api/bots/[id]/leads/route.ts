@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { sendLeadNotification } from "@/lib/emails"
 
 export async function POST(
   req: Request,
@@ -14,20 +15,18 @@ export async function POST(
       return NextResponse.json({ error: "El email es obligatorio" }, { status: 400 })
     }
 
-    // Verificar que el bot existe
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, name: true },
     })
 
     if (!bot) {
       return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
     }
 
-    // Verificar que el dueño del bot tiene plan pro
     const owner = await prisma.user.findUnique({
       where: { id: bot.userId },
-      select: { plan: true },
+      select: { plan: true, email: true },
     })
 
     if (owner?.plan !== "pro") {
@@ -37,6 +36,11 @@ export async function POST(
     const lead = await prisma.lead.create({
       data: { botId, name, email },
     })
+
+    // Notificar al dueño del bot por email (no bloqueante)
+    if (owner.email) {
+      sendLeadNotification(owner.email, bot.name, name || "", email)
+    }
 
     return NextResponse.json(lead)
   } catch {
@@ -49,7 +53,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // GET requiere autenticación — solo el dueño del bot puede ver sus leads
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 })
@@ -57,7 +60,6 @@ export async function GET(
 
     const { id: botId } = await params
 
-    // Verificar que el bot pertenece al usuario
     const bot = await prisma.bot.findFirst({
       where: { id: botId, userId: session.user.id },
     })
