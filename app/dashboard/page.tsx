@@ -2,8 +2,9 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
-import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight, BookOpen, Globe, CheckCircle } from "lucide-react"
+import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight, BookOpen, Globe, CheckCircle, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import ConversationsChart from "./conversations-chart"
 
 export default async function DashboardPage({
   searchParams,
@@ -31,12 +32,34 @@ export default async function DashboardPage({
   })
 
   const isNewUser = bots.length === 0
-  const firstBotId = bots[0]?.id // puede ser undefined si no hay bots
+  const firstBotId = bots[0]?.id
+
+  // Datos del gráfico — últimos 7 días
+  const chartData = await Promise.all(
+    Array.from({ length: 7 }, (_, i) => {
+      const date = new Date()
+      date.setDate(date.getDate() - (6 - i))
+      date.setHours(0, 0, 0, 0)
+      const nextDate = new Date(date)
+      nextDate.setDate(nextDate.getDate() + 1)
+
+      return prisma.conversation.count({
+        where: {
+          bot: { userId: session.user?.id as string },
+          createdAt: { gte: date, lt: nextDate },
+        },
+      }).then(count => ({
+        date: date.toLocaleDateString("es-ES", { day: "numeric", month: "short" }),
+        conversations: count,
+      }))
+    })
+  )
+
+  const totalThisWeek = chartData.reduce((acc, d) => acc + d.conversations, 0)
 
   return (
     <div className="px-4 md:px-8 py-6 md:py-8">
 
-      {/* Banner de bienvenida Pro */}
       {upgraded === "true" && (
         <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3">
           <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
@@ -47,7 +70,6 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8 pb-6 border-b border-white/10">
         <div className="flex flex-col justify-center">
           <h1 className="text-xl md:text-2xl font-bold">
@@ -71,33 +93,9 @@ export default async function DashboardPage({
         <div className="flex flex-col gap-8 max-w-2xl mx-auto">
           <div className="flex flex-col gap-4">
             {[
-              {
-                step: "1",
-                title: "Crea tu chatbot",
-                desc: "Dale un nombre, descripción e instrucciones. Tu bot estará listo en segundos.",
-                icon: Bot,
-                cta: "Crear chatbot",
-                href: "/dashboard/bots/new",
-                active: true,
-              },
-              {
-                step: "2",
-                title: "Añade base de conocimiento",
-                desc: "Sube la información de tu negocio — horarios, servicios, precios. El bot la usará para responder.",
-                icon: BookOpen,
-                cta: null,
-                href: null,
-                active: false,
-              },
-              {
-                step: "3",
-                title: "Instala el widget en tu web",
-                desc: "Copia una línea de código y pégala en tu web. Compatible con cualquier plataforma.",
-                icon: Globe,
-                cta: null,
-                href: null,
-                active: false,
-              },
+              { step: "1", title: "Crea tu chatbot", desc: "Dale un nombre, descripción e instrucciones. Tu bot estará listo en segundos.", icon: Bot, cta: "Crear chatbot", href: "/dashboard/bots/new", active: true },
+              { step: "2", title: "Añade base de conocimiento", desc: "Sube la información de tu negocio — horarios, servicios, precios. El bot la usará para responder.", icon: BookOpen, cta: null, href: null, active: false },
+              { step: "3", title: "Instala el widget en tu web", desc: "Copia una línea de código y pégala en tu web. Compatible con cualquier plataforma.", icon: Globe, cta: null, href: null, active: false },
             ].map(({ step, title, desc, icon: Icon, active, cta, href }) => (
               <div key={step} className={`flex gap-4 p-4 md:p-5 rounded-xl border transition-all ${active ? "bg-violet-500/10 border-violet-500/30" : "bg-white/5 border-white/10 opacity-50"}`}>
                 <div className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold border ${active ? "bg-violet-600 border-violet-500 text-white" : "bg-white/10 border-white/20 text-white/50"}`}>
@@ -121,12 +119,9 @@ export default async function DashboardPage({
               </div>
             ))}
           </div>
-
           <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-5 md:p-6 flex flex-col gap-3">
             <p className="text-sm font-semibold text-violet-300">¿Para qué sirve ChatBase?</p>
-            <p className="text-white/50 text-sm leading-relaxed">
-              ChatBase te permite crear un asistente virtual con IA para tu negocio. Tus clientes pueden preguntar sobre horarios, servicios, precios y más — 24/7, sin que tengas que estar pendiente.
-            </p>
+            <p className="text-white/50 text-sm leading-relaxed">ChatBase te permite crear un asistente virtual con IA para tu negocio. Tus clientes pueden preguntar sobre horarios, servicios, precios y más — 24/7, sin que tengas que estar pendiente.</p>
             <div className="grid grid-cols-3 gap-2 md:gap-3 mt-2">
               {[
                 { icon: MessageSquare, text: "Responde preguntas automáticamente" },
@@ -143,7 +138,8 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-8">
+          {/* Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-6">
             {[
               { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
               { label: "Conversaciones hoy", value: conversationsToday, icon: MessageSquare, highlight: false },
@@ -161,7 +157,23 @@ export default async function DashboardPage({
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-8">
+          {/* Gráfico */}
+          <div className="border border-white/10 rounded-xl p-4 md:p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-violet-400" />
+                <h2 className="font-semibold">Conversaciones — últimos 7 días</h2>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold text-violet-400">{totalThisWeek}</p>
+                <p className="text-white/30 text-xs">esta semana</p>
+              </div>
+            </div>
+            <ConversationsChart data={chartData} />
+          </div>
+
+          {/* Bots grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6">
             {bots.map((bot) => (
               <Link href={`/dashboard/bots/${bot.id}`} key={bot.id}>
                 <div className="group relative border border-white/10 bg-gradient-to-br from-white/5 to-violet-500/5 rounded-xl p-5 md:p-6 flex flex-col gap-4 hover:border-violet-500/40 transition-all cursor-pointer overflow-hidden">
@@ -190,7 +202,7 @@ export default async function DashboardPage({
             ))}
           </div>
 
-          {/* Acciones rápidas — solo si hay bots */}
+          {/* Acciones rápidas */}
           <div className="border border-white/10 rounded-xl p-4 md:p-6">
             <h2 className="font-semibold mb-4">Acciones rápidas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
