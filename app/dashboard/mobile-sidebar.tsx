@@ -1,7 +1,6 @@
 "use client"
-
 import { useState } from "react"
-import { Menu, X, LogOut } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import Link from "next/link"
 import SidebarNav from "./sidebar-nav"
 
@@ -65,9 +64,6 @@ export default function MobileSidebar({ userInitial, userName, userEmail }: Prop
           </div>
         </div>
       </div>
-
-      {/* Espaciado para el topbar en móvil */}
-      <div className="lg:hidden h-14 w-full" />
     </>
   )
 }

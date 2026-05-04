@@ -78,7 +78,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
 
   if (fetching) {
     return (
-      <div className="px-8 py-8 flex items-center justify-center h-64">
+      <div className="px-4 md:px-8 py-8 flex items-center justify-center h-64">
         <p className="text-white/40">Cargando...</p>
       </div>
     )
@@ -87,26 +87,26 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
   const isPro = plan === "pro"
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
-      <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+      <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-6 md:mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al bot
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
-        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <Bot className="w-6 h-6 text-violet-400" />
+      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-6 border-b border-white/10">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+          <Bot className="w-5 h-5 md:w-6 md:h-6 text-violet-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Editar chatbot</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Editar chatbot</h1>
           <p className="text-white/50 text-sm mt-0.5">Modifica la configuración de tu asistente</p>
         </div>
       </div>
 
       {/* Layout dos columnas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Columna izquierda — formulario */}
         <div className="lg:col-span-2 flex flex-col gap-6">
@@ -117,11 +117,11 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
               <div className="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-violet-400" />
               </div>
-              <div>
-                <p className="text-sm font-medium">{name}</p>
-                <p className="text-white/40 text-xs">{description || "Sin descripción"}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{name}</p>
+                <p className="text-white/40 text-xs truncate">{description || "Sin descripción"}</p>
               </div>
-              <span className="ml-auto text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
+              <span className="ml-auto text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full shrink-0">
                 Activo
               </span>
             </div>
@@ -130,7 +130,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
             {/* Card info básica */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-5">
               <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Información básica</h2>
               <div className="flex flex-col gap-2">
                 <Label className="text-white/70">Nombre del chatbot</Label>
@@ -153,7 +153,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
             </div>
 
             {/* Card instrucciones */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">
                   Instrucciones <span className="text-white/30 normal-case font-normal">(opcional)</span>
@@ -164,7 +164,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
               <textarea
                 value={instructions}
                 onChange={e => setInstructions(e.target.value)}
-                rows={10}
+                rows={8}
                 placeholder="Ej: Eres el asistente virtual del Restaurante Pepe..."
                 className="bg-white/5 border border-white/20 text-white placeholder:text-white/30 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:border-violet-500/50"
               />
@@ -172,7 +172,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
 
             {/* Card personalización widget — solo Pro */}
             {isPro ? (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-5">
                 <div className="flex items-center gap-2">
                   <Palette className="w-4 h-4 text-violet-400" />
                   <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Personalización del widget</h2>
@@ -222,7 +222,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
                       style={{ background: widgetColor }}
                     />
                   </div>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex gap-2 mt-1 flex-wrap">
                     {["#7c3aed", "#2563eb", "#16a34a", "#dc2626", "#d97706", "#0891b2"].map(color => (
                       <button
                         key={color}
@@ -239,7 +239,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
                 </div>
               </div>
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-white/30" />
                   <h2 className="font-semibold text-sm text-white/30 uppercase tracking-wide">Personalización del widget</h2>
@@ -262,7 +262,7 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 type="submit"
                 disabled={loading}
@@ -283,9 +283,9 @@ export default function EditBotPage({ params }: { params: Promise<{ id: string }
           </form>
 
           {/* Zona de peligro */}
-          <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-6 flex flex-col gap-4">
+          <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-5 md:p-6 flex flex-col gap-4">
             <h2 className="font-semibold text-red-400">Zona de peligro</h2>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-medium">Eliminar chatbot</p>
                 <p className="text-white/40 text-xs mt-0.5">Esta acción es permanente y no se puede deshacer</p>

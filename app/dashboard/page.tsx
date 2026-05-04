@@ -27,12 +27,12 @@ export default async function DashboardPage() {
   const isNewUser = bots.length === 0
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8 pb-6 border-b border-white/10">
         <div className="flex flex-col justify-center">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-xl md:text-2xl font-bold">
             {isNewUser ? `¡Bienvenido a ChatBase! 👋` : "Mis chatbots"}
           </h1>
           <p className="text-white/50 text-sm mt-1">
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         {!isNewUser && (
-          <Link href="/dashboard/bots/new" className="mr-1">
+          <Link href="/dashboard/bots/new">
             <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2">
               <Plus className="w-4 h-4" />
               Nuevo chatbot
@@ -87,13 +87,13 @@ export default async function DashboardPage() {
                 active: false,
               },
             ].map(({ step, title, desc, icon: Icon, active, cta, href }) => (
-              <div key={step} className={`flex gap-4 p-5 rounded-xl border transition-all ${active ? "bg-violet-500/10 border-violet-500/30" : "bg-white/5 border-white/10 opacity-50"}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold border ${active ? "bg-violet-600 border-violet-500 text-white" : "bg-white/10 border-white/20 text-white/50"}`}>
+              <div key={step} className={`flex gap-4 p-4 md:p-5 rounded-xl border transition-all ${active ? "bg-violet-500/10 border-violet-500/30" : "bg-white/5 border-white/10 opacity-50"}`}>
+                <div className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold border ${active ? "bg-violet-600 border-violet-500 text-white" : "bg-white/10 border-white/20 text-white/50"}`}>
                   {step}
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
                       <p className="font-semibold text-sm">{title}</p>
                       <p className="text-white/50 text-xs mt-1 leading-relaxed">{desc}</p>
                     </div>
@@ -111,18 +111,18 @@ export default async function DashboardPage() {
           </div>
 
           {/* Demo info */}
-          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-6 flex flex-col gap-3">
+          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-5 md:p-6 flex flex-col gap-3">
             <p className="text-sm font-semibold text-violet-300">¿Para qué sirve ChatBase?</p>
             <p className="text-white/50 text-sm leading-relaxed">
               ChatBase te permite crear un asistente virtual con IA para tu negocio. Tus clientes pueden preguntar sobre horarios, servicios, precios y más — 24/7, sin que tengas que estar pendiente.
             </p>
-            <div className="grid grid-cols-3 gap-3 mt-2">
+            <div className="grid grid-cols-3 gap-2 md:gap-3 mt-2">
               {[
                 { icon: MessageSquare, text: "Responde preguntas automáticamente" },
                 { icon: Zap, text: "Listo en minutos, sin código" },
                 { icon: Globe, text: "Funciona en cualquier web" },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex flex-col items-center gap-2 text-center p-3 bg-white/5 rounded-lg">
+                <div key={text} className="flex flex-col items-center gap-2 text-center p-2 md:p-3 bg-white/5 rounded-lg">
                   <Icon className="w-5 h-5 text-violet-400" />
                   <p className="text-white/50 text-xs leading-relaxed">{text}</p>
                 </div>
@@ -134,13 +134,13 @@ export default async function DashboardPage() {
       ) : (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-8">
             {[
               { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
               { label: "Conversaciones hoy", value: conversationsToday, icon: MessageSquare, highlight: false },
               { label: "Último creado", value: bots[0] ? new Date(bots[0].createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—", icon: Calendar, highlight: false },
             ].map(({ label, value, icon: Icon, highlight }) => (
-              <div key={label} className={`rounded-xl p-5 flex items-center gap-4 border ${highlight ? "bg-violet-500/10 border-violet-500/40" : "bg-white/5 border-white/20"}`}>
+              <div key={label} className={`rounded-xl p-4 md:p-5 flex items-center gap-4 border ${highlight ? "bg-violet-500/10 border-violet-500/40" : "bg-white/5 border-white/20"}`}>
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${highlight ? "bg-violet-500/20 border-violet-500/40" : "bg-violet-500/10 border-violet-500/20"}`}>
                   <Icon className="w-5 h-5 text-violet-400" />
                 </div>
@@ -153,10 +153,10 @@ export default async function DashboardPage() {
           </div>
 
           {/* Bots grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-8">
             {bots.map((bot) => (
               <Link href={`/dashboard/bots/${bot.id}`} key={bot.id}>
-                <div className="group relative border border-white/10 bg-gradient-to-br from-white/5 to-violet-500/5 rounded-xl p-6 flex flex-col gap-4 hover:border-violet-500/40 transition-all cursor-pointer overflow-hidden">
+                <div className="group relative border border-white/10 bg-gradient-to-br from-white/5 to-violet-500/5 rounded-xl p-5 md:p-6 flex flex-col gap-4 hover:border-violet-500/40 transition-all cursor-pointer overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="flex items-center justify-between relative">
                     <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center group-hover:border-violet-500/40 transition-all">
@@ -185,9 +185,9 @@ export default async function DashboardPage() {
           </div>
 
           {/* Acciones rápidas */}
-          <div className="border border-white/10 rounded-xl p-6">
+          <div className="border border-white/10 rounded-xl p-4 md:p-6">
             <h2 className="font-semibold mb-4">Acciones rápidas</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { icon: Plus, title: "Crear nuevo chatbot", desc: "Añade un nuevo asistente a tu cuenta", href: "/dashboard/bots/new" },
                 { icon: Zap, title: "Probar el chat", desc: "Abre el preview y prueba las respuestas", href: `/dashboard/bots/${bots[0]?.id}` },

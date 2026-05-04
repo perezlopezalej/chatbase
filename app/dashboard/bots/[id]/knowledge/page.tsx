@@ -101,22 +101,22 @@ export default function KnowledgePage() {
     fetchSources()
   }
 
-if (plan === "free") {
+  if (plan === "free") {
     return (
-      <div className="px-8 py-8">
-        <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+      <div className="px-4 md:px-8 py-6 md:py-8">
+        <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-6 md:mb-8 transition-colors w-fit">
           <ArrowLeft className="w-3.5 h-3.5" />
           Volver al bot
         </Link>
-        <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
+        <div className="flex flex-col items-center justify-center py-16 md:py-24 gap-6 text-center">
           <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
             <BookOpen className="w-8 h-8 text-violet-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold mb-2">Función Pro</h2>
-            <p className="text-white/50 max-w-md">La base de conocimiento está disponible en el plan Pro. Actualiza para entrenar tu bot con la información real de tu negocio.</p>
+            <h2 className="text-xl md:text-2xl font-bold mb-2">Función Pro</h2>
+            <p className="text-white/50 max-w-md text-sm md:text-base">La base de conocimiento está disponible en el plan Pro. Actualiza para entrenar tu bot con la información real de tu negocio.</p>
           </div>
-          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-6 max-w-sm w-full">
+          <div className="flex flex-col gap-3 bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 max-w-sm w-full">
             {[
               "Añade URLs de tu web",
               "Sube texto e información del negocio",
@@ -125,7 +125,7 @@ if (plan === "free") {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-violet-400 shrink-0" />
-                <p className="text-white/70 text-sm">{item}</p>
+                <p className="text-white/70 text-sm text-left">{item}</p>
               </div>
             ))}
           </div>
@@ -138,27 +138,27 @@ if (plan === "free") {
   }
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
       {/* Breadcrumb */}
-      <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+      <Link href={`/dashboard/bots/${botId}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-6 md:mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al bot
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
-        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <BookOpen className="w-6 h-6 text-violet-400" />
+      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-6 border-b border-white/10">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+          <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-violet-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Base de conocimiento</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Base de conocimiento</h1>
           <p className="text-white/50 text-sm mt-0.5">Añade contenido para que tu bot responda con información real</p>
         </div>
       </div>
 
       {/* Layout dos columnas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Columna izquierda */}
         <div className="lg:col-span-2 flex flex-col gap-8">
@@ -175,7 +175,7 @@ if (plan === "free") {
             </TabsList>
 
             <TabsContent value="url" className="mt-4">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
                 <div>
                   <p className="text-sm font-medium mb-1">URL de tu web</p>
                   <p className="text-white/40 text-xs">Extraeremos el contenido automáticamente</p>
@@ -199,7 +199,7 @@ if (plan === "free") {
             </TabsContent>
 
             <TabsContent value="text" className="mt-4">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
                 <div>
                   <p className="text-sm font-medium mb-1">Información del negocio</p>
                   <p className="text-white/40 text-xs">Escribe o pega directamente horarios, servicios, precios...</p>
@@ -243,7 +243,7 @@ if (plan === "free") {
               </div>
             ) : (
               sources.map((source) => (
-                <div key={source.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-start justify-between gap-4">
+                <div key={source.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
                       {source.type === "url" ? (

@@ -39,26 +39,26 @@ export default function NewBotPage() {
   }
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
-      <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+      <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-6 md:mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al dashboard
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
-        <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <Bot className="w-6 h-6 text-violet-400" />
+      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-6 border-b border-white/10">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+          <Bot className="w-5 h-5 md:w-6 md:h-6 text-violet-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Crear nuevo chatbot</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Crear nuevo chatbot</h1>
           <p className="text-white/50 text-sm mt-0.5">Configura tu asistente personalizado</p>
         </div>
       </div>
 
       {/* Layout dos columnas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Columna izquierda — formulario */}
         <div className="lg:col-span-2">
@@ -69,9 +69,9 @@ export default function NewBotPage() {
               <div className="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-violet-400" />
               </div>
-              <div>
-                <p className="text-sm font-medium">{name}</p>
-                <p className="text-white/40 text-xs">{description || "Sin descripción"}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{name}</p>
+                <p className="text-white/40 text-xs truncate">{description || "Sin descripción"}</p>
               </div>
             </div>
           )}
@@ -79,7 +79,7 @@ export default function NewBotPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
             {/* Card info básica */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-5">
               <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">Información básica</h2>
               <div className="flex flex-col gap-2">
                 <Label className="text-white/70">Nombre del chatbot</Label>
@@ -103,7 +103,7 @@ export default function NewBotPage() {
             </div>
 
             {/* Card instrucciones */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-sm text-white/70 uppercase tracking-wide">
                   Instrucciones <span className="text-white/30 normal-case font-normal">(opcional)</span>
@@ -114,7 +114,7 @@ export default function NewBotPage() {
               <textarea
                 value={instructions}
                 onChange={e => setInstructions(e.target.value)}
-                rows={10}
+                rows={8}
                 placeholder="Ej: Eres el asistente virtual del Restaurante Pepe. Responde siempre en español, de forma amable y concisa. Si no sabes algo, indica que contacten por teléfono..."
                 className="bg-white/5 border border-white/20 text-white placeholder:text-white/30 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:border-violet-500/50"
               />

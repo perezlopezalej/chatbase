@@ -34,71 +34,78 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
   })
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
-      {/* Breadcrumb + Header */}
-      <div className="mb-8">
-        <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-4 transition-colors w-fit">
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Mis chatbots
-        </Link>
-        <div className="flex items-center justify-between pb-6 border-b border-white/10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-              <Bot className="w-6 h-6 text-violet-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold">{bot.name}</h1>
-                <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">Activo</span>
-                <Link href={`/dashboard/bots/${bot.id}/edit`}>
-                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
-                    <Pencil className="w-3 h-3" />
-                    Editar
-                  </Button>
-                </Link>
-                <Link href={`/dashboard/bots/${bot.id}/knowledge`}>
-                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
-                    <BookOpen className="w-3 h-3" />
-                    Conocimiento
-                  </Button>
-                </Link>
-                <Link href={`/dashboard/bots/${bot.id}/conversations`}>
-                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
-                    <MessageSquare className="w-3 h-3" />
-                    Conversaciones
-                  </Button>
-                </Link>
-                <Link href={`/dashboard/bots/${bot.id}/leads`}>
-                  <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
-                    <Users className="w-3 h-3" />
-                    Leads
-                  </Button>
-                </Link>
-              </div>
-              <p className="text-white/50 text-sm mt-0.5">{bot.description}</p>
-            </div>
+      {/* Breadcrumb */}
+      <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-4 transition-colors w-fit">
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Mis chatbots
+      </Link>
+
+      {/* Header */}
+      <div className="flex flex-col gap-4 mb-8 pb-6 border-b border-white/10">
+        {/* Nombre + badge */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+            <Bot className="w-5 h-5 md:w-6 md:h-6 text-violet-400" />
           </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-bold truncate">{bot.name}</h1>
+              <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full shrink-0">Activo</span>
+            </div>
+            {bot.description && (
+              <p className="text-white/50 text-sm mt-0.5 truncate">{bot.description}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Botones de acción — en fila scrollable en móvil */}
+        <div className="flex gap-2 flex-wrap">
+          <Link href={`/dashboard/bots/${bot.id}/edit`}>
+            <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+              <Pencil className="w-3 h-3" />
+              Editar
+            </Button>
+          </Link>
+          <Link href={`/dashboard/bots/${bot.id}/knowledge`}>
+            <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+              <BookOpen className="w-3 h-3" />
+              Conocimiento
+            </Button>
+          </Link>
+          <Link href={`/dashboard/bots/${bot.id}/conversations`}>
+            <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+              <MessageSquare className="w-3 h-3" />
+              Conversaciones
+            </Button>
+          </Link>
+          <Link href={`/dashboard/bots/${bot.id}/leads`}>
+            <Button variant="outline" size="sm" className="border-white/20 !text-white/70 bg-transparent hover:bg-white/10 gap-1.5 text-xs">
+              <Users className="w-3 h-3" />
+              Leads
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      {/* Stats — 2 columnas en móvil, 4 en desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
         {[
           { label: "Conversaciones totales", value: conversationCount.toString() },
           { label: "Mensajes enviados", value: messageCount.toString() },
           { label: "Leads capturados", value: leadCount.toString() },
           { label: "Creado el", value: new Date(bot.createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white/5 border border-white/10 rounded-xl p-4">
-            <p className="text-xl font-bold text-white">{value}</p>
+          <div key={label} className="bg-white/5 border border-white/10 rounded-xl p-3 md:p-4">
+            <p className="text-lg md:text-xl font-bold text-white">{value}</p>
             <p className="text-white/40 text-xs mt-1">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
 
         {/* Chat preview */}
         <div className="flex flex-col gap-4">
@@ -116,7 +123,7 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
             <p className="text-white/40 text-sm mt-0.5">Añade el chat a tu web en minutos</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
 
             {[
               { step: "1", title: "Copia el código", desc: "Haz click en el botón para copiar el script de instalación" },
@@ -136,7 +143,7 @@ export default async function BotPage({ params }: { params: Promise<{ id: string
 
             <div className="flex flex-col gap-2">
               <p className="text-xs text-white/40 font-medium uppercase tracking-wide">Código de instalación</p>
-              <div className="bg-black/50 border border-white/10 rounded-lg p-4 font-mono text-xs text-violet-300 break-all">
+              <div className="bg-black/50 border border-white/10 rounded-lg p-3 md:p-4 font-mono text-xs text-violet-300 break-all">
                 {widgetCode}
               </div>
               <CopyButton code={widgetCode} />

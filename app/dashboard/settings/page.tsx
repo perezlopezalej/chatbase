@@ -12,15 +12,15 @@ export default async function SettingsPage() {
   const initial = (session.user?.name?.[0] || session.user?.email?.[0] || "U").toUpperCase()
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
       {/* Header */}
       <div className="mb-8 pb-6 border-b border-white/10">
-        <h1 className="text-2xl font-bold">Configuración</h1>
+        <h1 className="text-xl md:text-2xl font-bold">Configuración</h1>
         <p className="text-white/50 text-sm mt-1">Gestiona tu cuenta y preferencias</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Columna izquierda */}
         <div className="lg:col-span-2 flex flex-col gap-6">
@@ -31,14 +31,14 @@ export default async function SettingsPage() {
               <User className="w-4 h-4 text-violet-400" />
               <h2 className="font-semibold">Perfil</h2>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-5">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-2xl font-bold text-violet-400">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-xl md:text-2xl font-bold text-violet-400 shrink-0">
                   {initial}
                 </div>
-                <div>
-                  <p className="font-semibold text-lg">{session.user?.name || "Usuario"}</p>
-                  <p className="text-white/50 text-sm">{session.user?.email}</p>
+                <div className="min-w-0">
+                  <p className="font-semibold text-base md:text-lg truncate">{session.user?.name || "Usuario"}</p>
+                  <p className="text-white/50 text-sm truncate">{session.user?.email}</p>
                 </div>
               </div>
               <div className="h-px bg-white/10" />
@@ -70,16 +70,16 @@ export default async function SettingsPage() {
               <Zap className="w-4 h-4 text-violet-400" />
               <h2 className="font-semibold">Plan actual</h2>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-5">
-              <div className="flex items-center justify-between">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-lg">Plan Gratis</p>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <p className="font-semibold text-base md:text-lg">Plan Gratis</p>
                     <span className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full">Activo</span>
                   </div>
                   <p className="text-white/50 text-sm">1 chatbot · 100 conversaciones/mes</p>
                 </div>
-                <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2">
+                <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2 shrink-0">
                   <Zap className="w-4 h-4" />
                   Actualizar a Pro
                 </Button>
@@ -111,23 +111,23 @@ export default async function SettingsPage() {
               <Shield className="w-4 h-4 text-violet-400" />
               <h2 className="font-semibold">Seguridad</h2>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:p-6 flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium">Contraseña</p>
                   <p className="text-white/40 text-xs mt-0.5">Cambia tu contraseña de acceso</p>
                 </div>
-                <Button variant="outline" className="border-white/20 !text-white bg-transparent hover:bg-white/10" disabled>
+                <Button variant="outline" className="border-white/20 !text-white bg-transparent hover:bg-white/10 shrink-0" disabled>
                   Cambiar
                 </Button>
               </div>
               <div className="h-px bg-white/10" />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-red-400">Eliminar cuenta</p>
                   <p className="text-white/40 text-xs mt-0.5">Esta acción no se puede deshacer</p>
                 </div>
-                <Button variant="outline" className="border-red-500/30 !text-red-400 bg-transparent hover:bg-red-500/10" disabled>
+                <Button variant="outline" className="border-red-500/30 !text-red-400 bg-transparent hover:bg-red-500/10 shrink-0" disabled>
                   Eliminar
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, MessageSquare, User, Bot, Lock, CheckCircle } from "lucide-react"
+import { ArrowLeft, MessageSquare, User, Bot, Lock } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -24,7 +24,6 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
 
   const isPro = user?.plan === "pro"
 
-  // Limitar a 7 días para free
   const dateFilter = isPro ? {} : {
     createdAt: {
       gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -42,22 +41,22 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
   })
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 md:px-8 py-6 md:py-8">
 
       {/* Breadcrumb */}
-      <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors w-fit">
+      <Link href={`/dashboard/bots/${id}`} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-6 md:mb-8 transition-colors w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
         Volver al bot
       </Link>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-            <MessageSquare className="w-6 h-6 text-violet-400" />
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8 pb-6 border-b border-white/10">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+            <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-violet-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Historial de conversaciones</h1>
+            <h1 className="text-xl md:text-2xl font-bold">Historial</h1>
             <p className="text-white/50 text-sm mt-0.5">
               {bot.name} — {conversations.length} conversaciones
               {!isPro && <span className="ml-2 text-white/30">(últimos 7 días)</span>}
@@ -74,7 +73,7 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
 
       {/* Banner upgrade para free */}
       {!isPro && (
-        <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 flex items-center justify-between gap-4 mb-6">
+        <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
             <Lock className="w-4 h-4 text-violet-400 shrink-0" />
             <p className="text-sm text-white/60">Estás viendo solo los últimos 7 días. Actualiza a Pro para acceder al historial completo.</p>
@@ -87,7 +86,7 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
 
       {/* Lista */}
       {conversations.length === 0 ? (
-        <div className="bg-white/5 border border-white/10 rounded-xl p-12 text-center">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-10 md:p-12 text-center">
           <MessageSquare className="w-10 h-10 text-white/20 mx-auto mb-4" />
           <p className="text-white/40">Todavía no hay conversaciones</p>
           <p className="text-white/25 text-sm mt-1">Las conversaciones aparecerán aquí cuando alguien use el chat</p>
@@ -99,8 +98,8 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
             const msgCount = conv.messages.length
 
             return (
-              <div key={conv.id} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
+              <div key={conv.id} className="bg-white/5 border border-white/10 rounded-xl p-4 md:p-5 flex flex-col gap-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2 text-white/40 text-xs">
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>{msgCount} mensajes</span>
@@ -121,7 +120,7 @@ export default async function ConversationsPage({ params }: { params: Promise<{ 
                           <Bot className="w-3 h-3 text-violet-400" />
                         </div>
                       )}
-                      <div className={`px-3 py-2 rounded-lg text-xs max-w-xs leading-relaxed ${
+                      <div className={`px-3 py-2 rounded-lg text-xs max-w-[85%] leading-relaxed ${
                         msg.role === "user"
                           ? "bg-violet-600/20 border border-violet-500/20 text-white/80"
                           : "bg-white/8 text-white/70"

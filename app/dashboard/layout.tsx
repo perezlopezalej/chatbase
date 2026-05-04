@@ -56,8 +56,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         userEmail={userEmail}
       />
 
-      {/* Main */}
-      <main className="flex-1 lg:ml-64 min-h-screen">
+      {/* Main — pt-14 compensa el topbar fijo en móvil */}
+      <main className="flex-1 lg:ml-64 min-h-screen pt-14 lg:pt-0">
         {children}
       </main>
     </div>
