@@ -13,10 +13,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "URL requerida" }, { status: 400 })
     }
 
+    // Validar que es una URL http/https válida
+    let parsedUrl: URL
+    try {
+      parsedUrl = new URL(url)
+    } catch {
+      return NextResponse.json({ error: "URL no válida" }, { status: 400 })
+    }
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      return NextResponse.json({ error: "Solo se permiten URLs http y https" }, { status: 400 })
+    }
+
+    // Bloquear IPs internas y localhost
+    const hostname = parsedUrl.hostname
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("172.")
+    ) {
+      return NextResponse.json({ error: "URL no permitida" }, { status: 400 })
+    }
+
     const response = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; ChatBase-bot/1.0)",
       },
+      signal: AbortSignal.timeout(10000), // timeout 10s
     })
 
     if (!response.ok) {
@@ -26,15 +51,13 @@ export async function POST(req: Request) {
     const html = await response.text()
     const $ = cheerio.load(html)
 
-    // Eliminar scripts, estilos y elementos no útiles
     $("script, style, nav, footer, header, iframe, img").remove()
 
-    // Extraer texto limpio
     const text = $("body")
       .text()
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 10000) // máximo 10k caracteres
+      .slice(0, 10000)
 
     const title = $("title").text().trim() || url
 

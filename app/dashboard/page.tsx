@@ -2,12 +2,18 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
-import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight, BookOpen, Globe } from "lucide-react"
+import { Bot, Plus, MessageSquare, Calendar, Zap, Code, ArrowRight, BookOpen, Globe, CheckCircle } from "lucide-react"
 import Link from "next/link"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ upgraded?: string }>
+}) {
   const session = await auth()
   if (!session) redirect("/login")
+
+  const { upgraded } = await searchParams
 
   const bots = await prisma.bot.findMany({
     where: { userId: session.user?.id as string },
@@ -28,6 +34,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="px-4 md:px-8 py-6 md:py-8">
+
+      {/* Banner de bienvenida Pro */}
+      {upgraded === "true" && (
+        <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-green-300">¡Bienvenido a ChatBase Pro! 🎉</p>
+            <p className="text-xs text-white/50 mt-0.5">Tu plan ha sido activado. Ya tienes acceso a todas las funcionalidades.</p>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8 pb-6 border-b border-white/10">
@@ -50,10 +67,7 @@ export default async function DashboardPage() {
       </div>
 
       {isNewUser ? (
-        /* ONBOARDING */
         <div className="flex flex-col gap-8 max-w-2xl mx-auto">
-
-          {/* Pasos */}
           <div className="flex flex-col gap-4">
             {[
               {
@@ -61,7 +75,6 @@ export default async function DashboardPage() {
                 title: "Crea tu chatbot",
                 desc: "Dale un nombre, descripción e instrucciones. Tu bot estará listo en segundos.",
                 icon: Bot,
-                done: false,
                 cta: "Crear chatbot",
                 href: "/dashboard/bots/new",
                 active: true,
@@ -71,7 +84,6 @@ export default async function DashboardPage() {
                 title: "Añade base de conocimiento",
                 desc: "Sube la información de tu negocio — horarios, servicios, precios. El bot la usará para responder.",
                 icon: BookOpen,
-                done: false,
                 cta: null,
                 href: null,
                 active: false,
@@ -81,7 +93,6 @@ export default async function DashboardPage() {
                 title: "Instala el widget en tu web",
                 desc: "Copia una línea de código y pégala en tu web. Compatible con cualquier plataforma.",
                 icon: Globe,
-                done: false,
                 cta: null,
                 href: null,
                 active: false,
@@ -110,7 +121,6 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          {/* Demo info */}
           <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-5 md:p-6 flex flex-col gap-3">
             <p className="text-sm font-semibold text-violet-300">¿Para qué sirve ChatBase?</p>
             <p className="text-white/50 text-sm leading-relaxed">
@@ -129,11 +139,9 @@ export default async function DashboardPage() {
               ))}
             </div>
           </div>
-
         </div>
       ) : (
         <>
-          {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-8">
             {[
               { label: "Chatbots creados", value: bots.length, icon: Bot, highlight: true },
@@ -152,7 +160,6 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          {/* Bots grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-8">
             {bots.map((bot) => (
               <Link href={`/dashboard/bots/${bot.id}`} key={bot.id}>
@@ -162,9 +169,7 @@ export default async function DashboardPage() {
                     <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center group-hover:border-violet-500/40 transition-all">
                       <Bot className="w-5 h-5 text-violet-400" />
                     </div>
-                    <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
-                      Activo
-                    </span>
+                    <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">Activo</span>
                   </div>
                   <div className="relative">
                     <h3 className="font-semibold">{bot.name}</h3>
@@ -184,7 +189,6 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          {/* Acciones rápidas */}
           <div className="border border-white/10 rounded-xl p-4 md:p-6">
             <h2 className="font-semibold mb-4">Acciones rápidas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

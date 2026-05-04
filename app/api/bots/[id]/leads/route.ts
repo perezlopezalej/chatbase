@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 
 export async function POST(
   req: Request,
@@ -11,6 +12,26 @@ export async function POST(
 
     if (!email) {
       return NextResponse.json({ error: "El email es obligatorio" }, { status: 400 })
+    }
+
+    // Verificar que el bot existe
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { id: true, userId: true },
+    })
+
+    if (!bot) {
+      return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
+    }
+
+    // Verificar que el dueño del bot tiene plan pro
+    const owner = await prisma.user.findUnique({
+      where: { id: bot.userId },
+      select: { plan: true },
+    })
+
+    if (owner?.plan !== "pro") {
+      return NextResponse.json({ error: "Función no disponible" }, { status: 403 })
     }
 
     const lead = await prisma.lead.create({
@@ -28,7 +49,22 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // GET requiere autenticación — solo el dueño del bot puede ver sus leads
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    }
+
     const { id: botId } = await params
+
+    // Verificar que el bot pertenece al usuario
+    const bot = await prisma.bot.findFirst({
+      where: { id: botId, userId: session.user.id },
+    })
+
+    if (!bot) {
+      return NextResponse.json({ error: "Bot no encontrado" }, { status: 404 })
+    }
 
     const leads = await prisma.lead.findMany({
       where: { botId },
