@@ -45,7 +45,7 @@ export default function ConversationsChart({ data }: Props) {
             fontSize: "13px",
           }}
           labelStyle={{ color: "#a78bfa" }}
-          formatter={(value: number) => [value, "Conversaciones"]}
+          formatter={(value, name) => [value, "Conversaciones"]}
         />
         <Area
           type="monotone"
