@@ -1,11 +1,21 @@
 import { Button } from "@/components/ui/button"
-import { Bot, Zap, Code, Check, ArrowRight } from "lucide-react"
+import { Bot, Zap, Code, Check, ArrowRight, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { auth } from "@/auth"
 import PricingProButton from "./pricing-button"
 
 export default async function Home() {
   const session = await auth()
+
+  let isPro = false
+  if (session?.user?.id) {
+    const { prisma } = await import("@/lib/prisma")
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { plan: true },
+    })
+    isPro = user?.plan === "pro"
+  }
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
@@ -147,10 +157,26 @@ export default async function Home() {
           <h2 className="text-4xl font-bold mb-4">Precios simples y transparentes</h2>
           <p className="text-white/50 text-lg">Empieza gratis, escala cuando lo necesites.</p>
         </div>
+
+        {/* Banner Pro activo */}
+        {isPro && (
+          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 max-w-3xl mx-auto w-full mb-8">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+              <p className="text-sm text-green-300 font-medium">Ya tienes el plan Pro activo. Tienes acceso a todas las funcionalidades.</p>
+            </div>
+            <Link href="/dashboard">
+              <Button size="sm" className="bg-green-600 hover:bg-green-500 !text-white shrink-0">
+                Ir al dashboard
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
 
           {/* Plan Gratis */}
-          <div className="flex flex-col gap-6 p-8 rounded-2xl border border-white/10 bg-white/5">
+          <div className={`flex flex-col gap-6 p-8 rounded-2xl border border-white/10 bg-white/5 ${isPro ? "opacity-50" : ""}`}>
             <div>
               <p className="text-white/50 text-sm mb-1">Gratis</p>
               <p className="text-4xl font-bold">0€<span className="text-white/30 text-base font-normal">/mes</span></p>
@@ -163,17 +189,23 @@ export default async function Home() {
                 </li>
               ))}
             </ul>
-            <Link href="/register">
-              <Button className="border border-white/40 !text-white bg-transparent hover:bg-white/10 w-full">
-                Empezar gratis
+            {isPro ? (
+              <Button disabled className="border border-white/20 !text-white/30 bg-transparent w-full cursor-not-allowed">
+                Plan anterior
               </Button>
-            </Link>
+            ) : (
+              <Link href="/register">
+                <Button className="border border-white/40 !text-white bg-transparent hover:bg-white/10 w-full">
+                  Empezar gratis
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Plan Pro */}
           <div className="flex flex-col gap-6 p-8 rounded-2xl border border-violet-500/50 bg-violet-500/10 shadow-[0_0_40px_rgba(139,92,246,0.1)] relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-              Más popular
+              {isPro ? "Plan activo" : "Más popular"}
             </div>
             <div>
               <p className="text-white/50 text-sm mb-1">Pro</p>
@@ -187,8 +219,16 @@ export default async function Home() {
                 </li>
               ))}
             </ul>
-            {/* Botón Pro con checkout de Stripe */}
-            <PricingProButton />
+            {isPro ? (
+              <Link href="/dashboard">
+                <Button className="bg-green-600 hover:bg-green-500 !text-white w-full gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Plan activo — Ir al dashboard
+                </Button>
+              </Link>
+            ) : (
+              <PricingProButton />
+            )}
           </div>
 
         </div>
