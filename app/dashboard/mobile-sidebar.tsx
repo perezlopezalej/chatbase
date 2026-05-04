@@ -13,6 +13,12 @@ interface Props {
 export default function MobileSidebar({ userInitial, userName, userEmail }: Props) {
   const [open, setOpen] = useState(false)
 
+  async function handleSignOut() {
+    // Llamar al endpoint de signout de NextAuth v5
+    await fetch("/api/auth/signout", { method: "POST" })
+    window.location.href = "/"
+  }
+
   return (
     <>
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a] border-b border-white/10 px-4 py-3 flex items-center justify-between">
@@ -51,11 +57,13 @@ export default function MobileSidebar({ userInitial, userName, userEmail }: Prop
                 <p className="text-sm font-medium truncate">{userName}</p>
                 <p className="text-xs text-white/40 truncate">{userEmail}</p>
               </div>
-              <form action="/api/auth/signout" method="POST">
-                <button type="submit" className="text-white/40 hover:text-red-400 transition-colors p-1 rounded">
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </form>
+              <button
+                onClick={handleSignOut}
+                className="text-white/40 hover:text-red-400 transition-colors p-1 rounded"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>

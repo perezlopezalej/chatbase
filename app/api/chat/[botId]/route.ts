@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// NOTA: Este rate limiter en memoria funciona para desarrollo y baja carga.
+// Para producción con múltiples instancias serverless, migrar a Upstash Redis:
+// https://upstash.com/docs/oss/sdks/ts/ratelimit/overview
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+
+// Limpieza periódica del Map para evitar memory leaks
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, value] of rateLimitMap.entries()) {
+    if (now > value.resetAt) rateLimitMap.delete(key)
+  }
+}, 5 * 60 * 1000)
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
@@ -22,7 +33,10 @@ export async function POST(
   { params }: { params: Promise<{ botId: string }> }
 ) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown"
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("x-real-ip")
+      || "unknown"
+
     if (!checkRateLimit(ip)) {
       return NextResponse.json(
         { error: "Demasiadas peticiones. Espera un momento." },
@@ -33,8 +47,12 @@ export async function POST(
     const { botId } = await params
     const { message, history = [], conversationId } = await req.json()
 
-    if (!message || typeof message !== "string" || message.length > 1000) {
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
       return NextResponse.json({ error: "Mensaje inválido" }, { status: 400 })
+    }
+
+    if (message.length > 1000) {
+      return NextResponse.json({ error: "Mensaje demasiado largo (máx. 1000 caracteres)" }, { status: 400 })
     }
 
     const bot = await prisma.bot.findUnique({
@@ -58,10 +76,7 @@ export async function POST(
       startOfMonth.setHours(0, 0, 0, 0)
 
       const conversationsThisMonth = await prisma.conversation.count({
-        where: {
-          botId: bot.id,
-          createdAt: { gte: startOfMonth },
-        },
+        where: { botId: bot.id, createdAt: { gte: startOfMonth } },
       })
 
       if (conversationsThisMonth >= 100) {
@@ -75,19 +90,13 @@ export async function POST(
     // Crear o recuperar conversación
     let convId = conversationId
     if (!convId) {
-      const conv = await prisma.conversation.create({
-        data: { botId },
-      })
+      const conv = await prisma.conversation.create({ data: { botId } })
       convId = conv.id
     }
 
     // Guardar mensaje del usuario
     await prisma.message.create({
-      data: {
-        conversationId: convId,
-        role: "user",
-        content: message,
-      },
+      data: { conversationId: convId, role: "user", content: message },
     })
 
     let knowledgeContext = ""
@@ -114,7 +123,7 @@ Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo
       { role: "user", content: message },
     ]
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -125,24 +134,30 @@ Responde siempre en el idioma del usuario. Sé conciso y útil. Si no sabes algo
         max_tokens: 500,
         messages: conversationMessages,
       }),
+      signal: AbortSignal.timeout(15000),
     })
 
-    const data = await response.json()
-    const reply =
-      data.choices?.[0]?.message?.content ||
-      "Lo siento, no pude procesar tu mensaje."
+    if (!groqResponse.ok) {
+      console.error(`Groq API error: ${groqResponse.status} ${groqResponse.statusText}`)
+      return NextResponse.json({ error: "Error al procesar el mensaje. Inténtalo de nuevo." }, { status: 503 })
+    }
+
+    const data = await groqResponse.json()
+    const reply = data.choices?.[0]?.message?.content
+
+    if (!reply) {
+      console.error("Groq returned empty response:", JSON.stringify(data))
+      return NextResponse.json({ error: "No se pudo generar una respuesta." }, { status: 503 })
+    }
 
     // Guardar respuesta del bot
     await prisma.message.create({
-      data: {
-        conversationId: convId,
-        role: "assistant",
-        content: reply,
-      },
+      data: { conversationId: convId, role: "assistant", content: reply },
     })
 
     return NextResponse.json({ reply, conversationId: convId })
   } catch (error) {
+    console.error("Chat API error:", error)
     return NextResponse.json({ error: "Error interno" }, { status: 500 })
   }
 }

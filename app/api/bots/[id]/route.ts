@@ -35,9 +35,27 @@ export async function PATCH(
     const { id } = await params
     const { name, description, instructions, widgetColor, welcomeMessage, captureLeads } = await req.json()
 
+    // Verificar el plan del usuario — solo Pro puede cambiar features premium
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { plan: true },
+    })
+
+    const isPro = user?.plan === "pro"
+
+    // Construir el objeto de datos según el plan
+    const updateData: Record<string, unknown> = { name, description, instructions }
+
+    if (isPro) {
+      // Solo Pro puede cambiar estas propiedades
+      if (widgetColor !== undefined) updateData.widgetColor = widgetColor
+      if (welcomeMessage !== undefined) updateData.welcomeMessage = welcomeMessage
+      if (captureLeads !== undefined) updateData.captureLeads = captureLeads
+    }
+
     const bot = await prisma.bot.updateMany({
       where: { id, userId: session.user.id },
-      data: { name, description, instructions, widgetColor, welcomeMessage, captureLeads },
+      data: updateData,
     })
 
     return NextResponse.json(bot)

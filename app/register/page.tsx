@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,6 +10,8 @@ import { Bot } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const plan = searchParams.get("plan") // lee ?plan=pro
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -18,15 +21,15 @@ export default function RegisterPage() {
     setError("")
 
     const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const name = formData.get("name") as string
 
+    // 1. Crear la cuenta
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-      }),
+      body: JSON.stringify({ name, email, password }),
     })
 
     const data = await res.json()
@@ -37,13 +40,37 @@ export default function RegisterPage() {
       return
     }
 
-    router.push("/login")
+    // 2. Auto-login tras el registro
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    })
+
+    if (result?.error) {
+      // Si el auto-login falla, redirigir al login manualmente
+      router.push("/login")
+      return
+    }
+
+    // 3. Si venía del botón Pro, ir al checkout
+    if (plan === "pro") {
+      const checkoutRes = await fetch("/api/checkout", { method: "POST" })
+      const checkoutData = await checkoutRes.json()
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url
+        return
+      }
+    }
+
+    // 4. Ir al dashboard
+    router.push("/dashboard")
+    router.refresh()
   }
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white flex relative">
 
-      {/* Gradiente de fondo */}
       <div className="absolute inset-0 bg-gradient-to-b from-violet-900/10 via-transparent to-transparent pointer-events-none" />
 
       {/* Panel izquierdo */}
@@ -66,12 +93,21 @@ export default function RegisterPage() {
             Crea tu chatbot personalizado, configúralo con la información de tu negocio y añádelo a tu web en minutos.
           </p>
         </div>
-        <p className="text-white/30 text-sm">© 2025 ChatBase. Todos los derechos reservados.</p>
+        <p className="text-white/30 text-sm">© 2026 ChatBase. Todos los derechos reservados.</p>
       </div>
 
       {/* Panel derecho */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 relative">
         <div className="w-full max-w-md flex flex-col gap-8">
+
+          {/* Badge plan Pro si viene del pricing */}
+          {plan === "pro" && (
+            <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-violet-400 text-sm font-semibold">⚡ Plan Pro</span>
+              <span className="text-white/50 text-sm">Crea tu cuenta y activa el plan Pro en segundos.</span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
             <h1 className="text-4xl font-bold">Crear cuenta</h1>
             <p className="text-white/50 text-lg">Empieza gratis, sin tarjeta de crédito.</p>
@@ -105,6 +141,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="Mínimo 8 caracteres"
                 required
+                minLength={8}
                 className="bg-white/5 border-white/20 text-white placeholder:text-white/30 h-12 text-base"
               />
             </div>
@@ -114,7 +151,10 @@ export default function RegisterPage() {
               disabled={loading}
               className="bg-violet-600 hover:bg-violet-500 !text-white h-12 text-base mt-2"
             >
-              {loading ? "Creando cuenta..." : "Crear cuenta gratis"}
+              {loading
+                ? plan === "pro" ? "Creando cuenta..." : "Creando cuenta..."
+                : plan === "pro" ? "Crear cuenta y activar Pro" : "Crear cuenta gratis"
+              }
             </Button>
           </form>
 

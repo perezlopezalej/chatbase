@@ -5,8 +5,19 @@ import { stripe } from "@/lib/stripe"
 export async function POST() {
   try {
     const session = await auth()
-    if (!session?.user?.email) {
+    if (!session?.user?.email || !session?.user?.id) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    }
+
+    // Verificar que no sea ya Pro
+    const { prisma } = await import("@/lib/prisma")
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { plan: true },
+    })
+
+    if (user?.plan === "pro") {
+      return NextResponse.json({ error: "Ya tienes el plan Pro activo" }, { status: 400 })
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -20,7 +31,7 @@ export async function POST() {
       ],
       customer_email: session.user.email,
       metadata: {
-        userId: session.user.id as string,
+        userId: session.user.id,
       },
       success_url: `${process.env.NEXTAUTH_URL}/dashboard?upgraded=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/settings`,

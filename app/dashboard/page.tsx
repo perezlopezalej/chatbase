@@ -31,6 +31,7 @@ export default async function DashboardPage({
   })
 
   const isNewUser = bots.length === 0
+  const firstBotId = bots[0]?.id // puede ser undefined si no hay bots
 
   return (
     <div className="px-4 md:px-8 py-6 md:py-8">
@@ -189,13 +190,16 @@ export default async function DashboardPage({
             ))}
           </div>
 
+          {/* Acciones rápidas — solo si hay bots */}
           <div className="border border-white/10 rounded-xl p-4 md:p-6">
             <h2 className="font-semibold mb-4">Acciones rápidas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { icon: Plus, title: "Crear nuevo chatbot", desc: "Añade un nuevo asistente a tu cuenta", href: "/dashboard/bots/new" },
-                { icon: Zap, title: "Probar el chat", desc: "Abre el preview y prueba las respuestas", href: `/dashboard/bots/${bots[0]?.id}` },
-                { icon: Code, title: "Instalar en tu web", desc: "Copia el widget y publícalo", href: `/dashboard/bots/${bots[0]?.id}` },
+                ...(firstBotId ? [
+                  { icon: Zap, title: "Probar el chat", desc: "Abre el preview y prueba las respuestas", href: `/dashboard/bots/${firstBotId}` },
+                  { icon: Code, title: "Instalar en tu web", desc: "Copia el widget y publícalo", href: `/dashboard/bots/${firstBotId}` },
+                ] : []),
               ].map(({ icon: Icon, title, desc, href }) => (
                 <Link href={href} key={title}>
                   <div className="flex items-center gap-3 p-4 rounded-lg border border-white/5 bg-white/3 hover:bg-white/5 hover:border-violet-500/20 transition-all">

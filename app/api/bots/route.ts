@@ -2,6 +2,25 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
+export async function GET() {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    }
+
+    const bots = await prisma.bot.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true },
+    })
+
+    return NextResponse.json(bots)
+  } catch {
+    return NextResponse.json({ error: "Error interno" }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth()
@@ -14,7 +33,6 @@ export async function POST(req: Request) {
       select: { plan: true },
     })
 
-    // Limitar a 1 bot en plan free
     if (user?.plan === "free") {
       const botCount = await prisma.bot.count({
         where: { userId: session.user.id },
@@ -34,12 +52,7 @@ export async function POST(req: Request) {
     }
 
     const bot = await prisma.bot.create({
-      data: {
-        name,
-        description,
-        instructions,
-        userId: session.user.id,
-      },
+      data: { name, description, instructions, userId: session.user.id },
     })
 
     return NextResponse.json(bot, { status: 201 })
