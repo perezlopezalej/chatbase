@@ -5,3 +5,5 @@ ignoredBuiltDependencies:
   - prisma
   - sharp
   - unrs-resolver
+onlyBuiltDependencies:
+  - es5-ext
