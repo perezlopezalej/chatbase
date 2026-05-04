@@ -1,9 +1,10 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { User, Shield, Zap, Bot, MessageSquare } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import UpgradeButton from "./upgrade-button"
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -79,10 +80,8 @@ export default async function SettingsPage() {
                   </div>
                   <p className="text-white/50 text-sm">1 chatbot · 100 conversaciones/mes</p>
                 </div>
-                <Button className="bg-violet-600 hover:bg-violet-500 !text-white gap-2 shrink-0">
-                  <Zap className="w-4 h-4" />
-                  Actualizar a Pro
-                </Button>
+                {/* 👇 Botón de upgrade real */}
+                <UpgradeButton />
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs text-white/40">
@@ -178,10 +177,8 @@ export default async function SettingsPage() {
                 </div>
               ))}
             </div>
-            <Button className="bg-violet-600 hover:bg-violet-500 !text-white w-full gap-2">
-              <Zap className="w-4 h-4" />
-              Actualizar por 29€/mes
-            </Button>
+            {/* 👇 Botón de upgrade real */}
+            <UpgradeButton />
           </div>
 
         </div>
